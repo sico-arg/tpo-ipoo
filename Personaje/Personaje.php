@@ -4,8 +4,8 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include '../Arma.php';
-
+include './Arma.php';
+include './Arena.php';
 /**
  * Clase abstracta personaje
  * 
@@ -95,7 +95,7 @@ abstract class Personaje
     {
         $this->nombre = $nuevoNombre;
     }
-    private function setNivel(int $nuevoNivel)
+    public function setNivel(int $nuevoNivel)
     {
         $this->nivel = $nuevoNivel;
     }
@@ -107,15 +107,15 @@ abstract class Personaje
     {
         $this->energia = $nuevaEnergia;
     }
-    private function setDuelosGanados(int $nuevosDuelosGanados)
+    public function setDuelosGanados(int $nuevosDuelosGanados)
     {
         $this->duelosGanados = $nuevosDuelosGanados;
     }
-    private function setDuelosPerdidos(int $nuevosDuelosPerdidos)
+    public function setDuelosPerdidos(int $nuevosDuelosPerdidos)
     {
         $this->duelosPerdidos = $nuevosDuelosPerdidos;
     }
-    private function setEstado(bool $nuevoEstado)
+    private function setEstado(string $nuevoEstado)
     {
         $this->estado = $nuevoEstado;
     }
@@ -137,8 +137,11 @@ abstract class Personaje
     {
         $puntosVida = $this->getPuntosVida();
         $nuevosPuntosVida = $puntosVida - $cantidad;
-        if ($nuevosPuntosVida < 0) {
+        if ($nuevosPuntosVida <= 0) {
             $nuevosPuntosVida = 0;
+            $this->setEstado("retirado");
+        } elseif ($nuevosPuntosVida <= 30 && $nuevosPuntosVida > 0) {
+            $this->setEstado("lesionado");
         }
         $this->setPuntosVida($nuevosPuntosVida);
     }
@@ -174,6 +177,21 @@ abstract class Personaje
     }
 
     /**
+     * Este metodo recibe cantidad por parametro y resta la energia del personaje
+     * @param int $cantidad
+     * @return void
+     */
+    public function perderEnergia(int $cantidad): void
+    {
+        $energiaActual = $this->getEnergia();
+        $nuevaEnergia = $energiaActual - $cantidad;
+        if ($nuevaEnergia < 0) {
+            $nuevaEnergia = 0;
+        }
+        $this->setEnergia($nuevaEnergia);
+    }
+
+    /**
      * Este metodo verifica si el personaje puede duelear
      * @return bool
      */
@@ -191,9 +209,54 @@ abstract class Personaje
      * Este metodo calcula el poder total sumando poder base y poder especial
      * @return int
      */
-    public function calcularPoderTotal(): int
+    public function calcularPoderTotal(Arena $arena): int
     {
-        return $this->calcularPoderBase() + $this->calcularPoderEspecial();
+        $armaPersonaje = $this->getArma();
+        // Ternaria en caso de que el valor de $armaPersonaje sea null porque el mismo no tenga arma
+        $danioArma = $armaPersonaje ? $armaPersonaje->calcularDanio() : 0;
+        $modificadorArena = $arena->calcularModificadorArena($this);
+
+        return $this->calcularPoderBase() + $this->calcularPoderEspecial() + $danioArma + $modificadorArena;
+    }
+
+    /**
+     * Este metodo aumenta el nivel del personaje en 1
+     * @return void
+     */
+    public function aumentarNivel(): void
+    {
+        $nivelActual = $this->getNivel();
+        $this->setNivel($nivelActual + 1);
+    }
+
+    /**
+     * Este metodo disminuye el nivel del personaje en 1
+     * @return void
+     */
+    public function disminuirNivel(): void
+    {
+        $nivelActual = $this->getNivel();
+        $this->setNivel($nivelActual - 1);
+    }
+
+    /**
+     * Este metodo incrementa en 1 la cantidad de duelos ganados
+     * @return void
+     */
+    public function sumarDuelosGanados(): void
+    {
+        $duelosGanadosActual = $this->getDuelosGanados();
+        $this->setDuelosGanados($duelosGanadosActual + 1);
+    }
+
+    /**
+     * Este metodo incrementa en 1 la cantidad de duelos perdidos
+     * @return void
+     */
+    public function sumarDuelosPerdidos(): void
+    {
+        $duelosPerdidosActual = $this->getDuelosPerdidos();
+        $this->setDuelosPerdidos($duelosPerdidosActual + 1);
     }
 
     /**
