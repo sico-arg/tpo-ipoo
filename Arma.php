@@ -1,6 +1,22 @@
 <?php
-include 'personaje.php';
-public class arma {
+
+// ==========================================
+//                 INCLUSIONES                 
+// ==========================================
+
+include './Personaje/Personaje.php';
+
+/**
+ * Clase Arma
+ * 
+ */
+class Arma
+{
+
+    // ==========================================
+    //                 ATRIBUTOS                  
+    // ==========================================
+
     private int $id;
     private string $nombre;
     private string $tipo;
@@ -8,80 +24,115 @@ public class arma {
     private int $nivelMinimo;
     private string $estado;
 
-    public function __construct(int $id,string $nombre,string $tipo,int $danioBase,int $nivelMinimo,string $estado){
-        $this->id=$id;
+    // ==========================================
+    //                 CONSTRUCTOR                  
+    // ==========================================
+
+    public function __construct(int $id, string $nombre, string $tipo, int $danioBase, int $nivelMinimo, string $estado)
+    {
+        $this->id = $id;
         $this->nombre = $nombre;
         $this->tipo = $tipo;
         $this->danioBase = $danioBase;
         $this->nivelMinimo = $nivelMinimo;
         $this->estado = $estado;
     }
-    public function getid(){
+
+    // ==========================================
+    //                 GETTERS                  
+    // ==========================================
+
+    public function getId()
+    {
         return $this->id;
     }
-    public function getnombre(){
+    public function getNombre()
+    {
         return $this->nombre;
     }
-    public function gettipo(){
+    public function getTipo()
+    {
         return $this->tipo;
     }
-    public function getdanioBase(){
+    public function getDanioBase()
+    {
         return $this->danioBase;
     }
-    public function getnivelMinimo(){
+    public function getNivelMinimo()
+    {
         return $this->nivelMinimo;
     }
-    public function getestado(){
+    public function getEstado()
+    {
         return $this->estado;
     }
-    public function setid(int $id){
-        $this->id=$id;
+
+    // ==========================================
+    //                 SETTERS                  
+    // ==========================================
+
+    public function setId(int $nuevoId)
+    {
+        $this->id = $nuevoId;
     }
-    public function setnombre(string $nombre){
-        $this->nombre = $nombre;
+    public function setNombre(string $nuevoNombre)
+    {
+        $this->nombre = $nuevoNombre;
     }
-    public function settipo(string $tipo){
-        $this->tipo = $tipo;
+    public function setTipo(string $nuevoTipo)
+    {
+        $this->tipo = $nuevoTipo;
     }
-    public function setdaniobase(int $danioBase){
-        $this->danioBase = $danioBase;
+    public function setDanioBase(int $nuevoDanioBase)
+    {
+        $this->danioBase = $nuevoDanioBase;
     }
-    public function setnivelMinimo(int $nivelMinimo) {
-        $this->nivelMinimo = $nivelMinimo;
+    public function setNivelMinimo(int $nuevoNivelMinimo)
+    {
+        $this->nivelMinimo = $nuevoNivelMinimo;
     }
-    public function setestado(string $estad){
-        $this->estado = $estado;
+    public function setEstado(string $nuevoEstado)
+    {
+        $this->estado = $nuevoEstado;
     }
 
-    public function calculardanio(){
-        $dañoCalculado =0;
-        $estadoActual =$this->getestado();
+    // ==========================================
+    //                 MÉTODOS                  
+    // ==========================================
 
-        if($estadoActual =='disponible') {
-            $dañoCalculado = $this->getdanioBase();
-        }else {
-            $dañoCalculado =0; //en caso que este rota
+    /**
+     * Este metodo devuelve el daño esperado del arma
+     * 
+     */
+    public function calcularDanio(): int
+    {
+        $dañoCalculado = 0;
+        $estadoActual = $this->getEstado();
+
+        if ($estadoActual == 'disponible' && $estadoActual == 'equipada') {
+            $dañoCalculado = $this->getDanioBase();
         }
 
         return $dañoCalculado;
     }
-    public function puedeSerEquipado(personaje $personaje) {
-        $equipado =false;
 
-         if($personaje->getnivelMinimo()<=$this->getnivelMinimo()) {
-            if($this->getestado() ='equipado'){
-                $equipado =true;
-            }else{
-                //en caso que el arma este rota pero el personaje cumpla el nivel minimo.
-                $equipado = false;
+    /**
+     * Este metodo verifica si el arma puede ser equipada por el personaje
+     * @param Personaje $personaje
+     * @return bool
+     */
+    public function puedeSerEquipadoPor(Personaje $personaje): bool
+    {
+        $equipado = false;
+        $nivelPersonaje = $personaje->getNivel();
+        $nivelMinimoArma = $this->getNivelMinimo();
+        $estadoArma = $this->getEstado();
 
+        if ($estadoArma != 'rota' && $estadoArma != 'equipada') {
+            if ($nivelPersonaje >= $nivelMinimoArma) {
+                $equipado = true;
             }
-            return $equipado;
-         }
-
-
+        }
+        return $equipado;
     }
 }
-?>
-
-    
