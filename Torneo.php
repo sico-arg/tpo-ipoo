@@ -31,20 +31,20 @@ class torneo
     //                 GETTERS          
     // ==========================================
 
-    public function getpersonajes()
+    public function getPersonajes()
     {
         return $this->personajes;
     }
-    public function getarmas()
+    public function getArmas()
     {
         return $this->armas;
     }
-    public function getarenas()
+    public function getArenas()
     {
         return $this->arenas;
     }
 
-    public function getduelos()
+    public function getDuelos()
     {
         return $this->duelos;
     }
@@ -53,23 +53,41 @@ class torneo
     //                 SETTERS              
     // ==========================================
 
+    private function setPersonajes(Personaje $nuevoPersonaje)
+    {
+        $this->personajes[] = $nuevoPersonaje;
+    }
+    private function setArmas(Arma $nuevaArma)
+    {
+        $this->armas[] = $nuevaArma;
+    }
+    private function setArenas(Arena $nuevaArena)
+    {
+        $this->arenas[] = $nuevaArena;
+    }
+
+    private function setDuelos(Duelo $nuevoDuelo)
+    {
+        $this->duelos[] = $nuevoDuelo;
+    }
+
     // ==========================================
     //                 METODOS              
     // ==========================================
 
 
 
-    public function agregarPersonaje(personaje $personaje)
+    public function agregarPersonaje(Personaje $personaje)
     {
-        $this->personajes[] = $personaje;
+        $this->setPersonajes($personaje);
     }
-    public function agregarArma(arma $arma)
+    public function agregarArma(Arma $arma)
     {
-        $this->armas[] = $arma;
+        $this->setArmas($arma);
     }
-    public function agregarArena(arena $arena)
+    public function agregarArena(Arena $arena)
     {
-        $this->arenas[] = $arena;
+        $this->setArenas($arena);
     }
     public function equiparArma()
     {
