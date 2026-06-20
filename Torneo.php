@@ -3,24 +3,23 @@
 //                 INCLUSIONES                 
 // ==========================================
 
+include_once './Personaje/Personaje.php';
+include_once './Personaje/Guerrero.php';
+include_once './Personaje/Mago.php';
+include_once './Personaje/Arquero.php';
+include_once './Arma.php';
+include_once './Arena.php';
+include_once './Duelo.php';
 
-include 'personaje.php';
-include 'arma.php';
-include 'arena.php';
-include 'duelo.php';
-
-
-class torneo
+class Torneo
 {
-
     // ==========================================
     //                 ATRIBUTOS              
     // ==========================================
     private array $personajes = [];
-    private array  $armas = [];
-    private array  $arenas = [];
+    private array $armas = [];
+    private array $arenas = [];
     private array $duelos = [];
-
 
     // ==========================================
     //                 CONSTRUCTOR         
@@ -43,7 +42,6 @@ class torneo
     {
         return $this->arenas;
     }
-
     public function getDuelos()
     {
         return $this->duelos;
@@ -65,7 +63,6 @@ class torneo
     {
         $this->arenas[] = $nuevaArena;
     }
-
     private function setDuelos(Duelo $nuevoDuelo)
     {
         $this->duelos[] = $nuevoDuelo;
@@ -74,8 +71,6 @@ class torneo
     // ==========================================
     //                 METODOS              
     // ==========================================
-
-
 
     public function agregarPersonaje(Personaje $personaje)
     {
@@ -89,101 +84,82 @@ class torneo
     {
         $this->setArenas($arena);
     }
-    public function equiparArma()
+    public function registrarDuelo(Duelo $duelo)
+    {
+        $this->setDuelos($duelo);
+    }
+
+    /**
+     * Equips a weapon to a character if allowed.
+     */
+    public function equiparArma(Personaje $personaje, Arma $arma)
     {
         $exito = false;
-        $armaEquipada = null;
-        $personajeArma = null;
-
-        foreach ($this->personajes as $personaje) {
-            if ($personaje->getid()) {
-                $personajeArma = $personaje;
-                break;
-            }
-        }
-        foreach ($this->armas as $arma) {
-            if ($arma->getid()) {
-                $armaEquipada = $arma;
-                break;
-            }
-        }
-        if ($personajeArma !== null && $armaEquipada !== null) {
-            if ($armaEquipada->puedeSerEquipadoPor($personajeArma)) {
-                $personajeArma->setarma($armaEquipada);
-                $armaEquipada->setEstado('equipado');
-                $exito = true;
-            }
+        if ($arma->puedeSerEquipadoPor($personaje)) {
+            $personaje->setArma($arma);
+            $arma->setEstado('equipada');
+            $exito = true;
         }
         return $exito;
     }
-    public function realizarDuelo()
+
+    /**
+     * Executes a specific duel.
+     */
+    public function realizarDuelo(Duelo $duelo)
     {
-        $realizado = false;
-        foreach ($this->duelos as $duelo) {
-            if ($duelo->getid()) {
-                if ($duelo->x()) {
-                    //necesito un metodo de la clase duelo)
-                    $realizado = true;
-                }
-                break;
-            }
-        }
-        return $realizado;
+        return $duelo->realizarDuelo();
     }
-    public function rankingPersonaje()
+
+    /**
+     * Lists all characters.
+     */
+    public function listarPersonajes()
+    {
+        return $this->personajes;
+    }
+
+    /**
+     * Lists all weapons.
+     */
+    public function listarArmas()
+    {
+        return $this->armas;
+    }
+
+    /**
+     * Lists all arenas.
+     */
+    public function listarArenas()
+    {
+        return $this->arenas;
+    }
+
+    /**
+     * Lists all duels.
+     */
+    public function listarDuelos()
+    {
+        return $this->duelos;
+    }
+
+    /**
+     * Returns characters sorted by victories (duelosGanados) descending.
+     */
+    public function rankingPersonajes()
     {
         $ranking = $this->personajes;
-        $puntaje = 0;
-        foreach ($this->duelos as $duelo) {
-            if ($ranking) {
-                $ganadorPersonaje1 =  $duelo->obtenerGanador();
-                $ganadorPersonaje2 =  $duelo->obtenerGanador();
-            }
-            if ($ganadorPersonaje1 == $ganadorPersonaje2) {
-                $ranking = 0;
-            }
-            if ($ganadorPersonaje1 > $ganadorPersonaje2) {
-                $puntaje++;
-            }
-            if ($ganadorPersonaje2 > $ganadorPersonaje1) {
-                $puntaje++;
-            }
-            $ranking = $puntaje;
-        }
+        usort($ranking, function($a, $b) {
+            return $b->getDuelosGanados() <=> $a->getDuelosGanados();
+        });
         return $ranking;
     }
 
-    public function listarPersona()
-    {
-        $listadoPersonaje = "";
-        foreach ($this->personajes as $personaje) {
-            $listadoPersonaje = count($personaje);
-        }
-        return $listadoPersonaje;
-    }
-    public function listarArma()
-    {
-        $listadoArma = "";
-        foreach ($this->armas as $arma) {
-            $listadoArma = count($arma);
-        }
-        return $listadoArma;
-    }
-    public function listarArena()
-    {
-        $listadoArena = "";
-        foreach ($this->arenas as $arena) {
-            $listadoArena = count($arena);
-        }
-        return $listadoArena;
-    }
-
-    public function listarDuelos()
-    {
-        $listadoDuelos = "";
-        foreach ($this->duelos as $duelo) {
-            $listadoDuelos = count($duelo);
-        }
-        return $listadoDuelos;
-    }
+    // ==================================================
+    //  ALIASES FOR OLD/INCORRECT STUDENT METHOD NAMES
+    // ==================================================
+    public function listarPersona() { return $this->listarPersonajes(); }
+    public function listarArma() { return $this->listarArmas(); }
+    public function listarArena() { return $this->listarArenas(); }
+    public function rankingPersonaje() { return $this->rankingPersonajes(); }
 }

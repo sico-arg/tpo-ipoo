@@ -4,7 +4,7 @@
 //                 INCLUSIONES                  
 // ==========================================
 
-include 'Personaje.php';
+include_once __DIR__ . '/Personaje.php';
 
 /**
  * Clase Mago
@@ -24,7 +24,7 @@ class Mago extends Personaje
     //                 CONSTRUCTOR               
     // ==========================================
 
-    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, bool $estado, Arma $arma, int $mana, int $inteligencia)
+    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, string $estado, ?Arma $arma, int $mana, int $inteligencia)
     {
         parent::__construct($id, $nombre, $nivel, $puntosVida, $energia, $duelosGanados, $duelosPerdidos, $estado, $arma);
         $this->mana = $mana;

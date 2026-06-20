@@ -4,7 +4,7 @@
 //                 INCLUSIONES                  
 // ==========================================
 
-include 'Personaje.php';
+include_once __DIR__ . '/Personaje.php';
 
 /**
  * Clase Arquero
@@ -24,7 +24,7 @@ class Arquero extends Personaje
     //                 CONSTRUCTOR               
     // ==========================================
 
-    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, bool $estado, Arma $arma, int $precision, int $velocidad)
+    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, string $estado, ?Arma $arma, int $precision, int $velocidad)
     {
         parent::__construct($id, $nombre, $nivel, $puntosVida, $energia, $duelosGanados, $duelosPerdidos, $estado, $arma);
         $this->precision = $precision;

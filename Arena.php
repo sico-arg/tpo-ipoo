@@ -4,7 +4,7 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include './Personaje/Personaje.php';
+include_once __DIR__ . '/Personaje/Personaje.php';
 
 class Arena
 {

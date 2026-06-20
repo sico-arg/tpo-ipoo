@@ -4,8 +4,8 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include './Arma.php';
-include './Arena.php';
+include_once __DIR__ . '/../Arma.php';
+include_once __DIR__ . '/../Arena.php';
 /**
  * Clase abstracta personaje
  * 
@@ -25,13 +25,13 @@ abstract class Personaje
     protected int $duelosGanados;
     protected int $duelosPerdidos;
     protected string $estado;
-    protected Arma $arma;
+    protected ?Arma $arma = null;
 
     // ==========================================
     //                 CONSTRUCTOR                 
     // ==========================================
 
-    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, string $estado, Arma $arma)
+    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, string $estado, ?Arma $arma = null)
     {
         $this->id = $id;
         $this->nombre = $nombre;
@@ -115,11 +115,11 @@ abstract class Personaje
     {
         $this->duelosPerdidos = $nuevosDuelosPerdidos;
     }
-    private function setEstado(string $nuevoEstado)
+    public function setEstado(string $nuevoEstado)
     {
         $this->estado = $nuevoEstado;
     }
-    private function setArma(Arma $nuevaArma)
+    public function setArma(?Arma $nuevaArma)
     {
         $this->arma = $nuevaArma;
     }

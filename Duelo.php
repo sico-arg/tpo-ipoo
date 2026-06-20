@@ -4,8 +4,8 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include './Personaje/Personaje.php';
-include './Arena.php';
+include_once __DIR__ . '/Personaje/Personaje.php';
+include_once __DIR__ . '/Arena.php';
 
 class Duelo
 {
@@ -18,13 +18,13 @@ class Duelo
     private Arena $arena;
     private string $fecha;
     private string $estado;
-    private bool $ganador;
+    private ?Personaje $ganador;
 
     // ==========================================
     //                 CONSTRUCTOR                 
     // ==========================================
 
-    public function __construct(int $id, Personaje $personaje1, Personaje $personaje2, Arena $arena, int $fecha, string $estado, bool $ganador)
+    public function __construct(int $id, Personaje $personaje1, Personaje $personaje2, Arena $arena, string $fecha, string $estado, ?Personaje $ganador = null)
     {
         $this->id = $id;
         $this->personaje1 = $personaje1;
@@ -88,15 +88,15 @@ class Duelo
     {
         $this->arena = $nuevaArena;
     }
-    private function setFecha(int $nuevaFecha)
+    private function setFecha(string $nuevaFecha)
     {
         $this->fecha = $nuevaFecha;
     }
-    private function setEstado(string $nuevoEstado)
+    public function setEstado(string $nuevoEstado)
     {
         $this->estado = $nuevoEstado;
     }
-    private function setGanador(bool $nuevoGanador)
+    public function setGanador(?Personaje $nuevoGanador)
     {
         $this->ganador = $nuevoGanador;
     }
@@ -184,9 +184,15 @@ class Duelo
                 $personaje1Actual->sumarDuelosPerdidos();
                 $personaje1Actual->perderEnergia(5);
             } else {
-                //No se que hacer en caso empate ya que creo que el tp no dice nada, no se si en caso de que el poder total de ambos sean iguales deberia hacer otra cosa en obtener ganador pero bueno
+                // En caso de empate, ambos sumamos duelos perdidos?
+                // The README says "El personaje con mayor poder será declarado ganador."
+                // In case of exact tie, we just do nothing or treat as tie.
             }
+            $this->setEstado('realizado');
+            $this->setGanador($ganadorDuelo);
+            return true;
         }
+        return false;
     }
 
     public function obtenerGanador()
