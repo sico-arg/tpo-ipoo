@@ -1,6 +1,6 @@
 <?php
 
-require_once 'config.php';
+require 'config.php';
 
 try {
     global $database;

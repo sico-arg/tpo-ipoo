@@ -9,9 +9,9 @@ use Medoo\Medoo;
 $database = new Medoo([
     'type' => 'mysql',                   // O 'mariadb' según el motor que instalaste nativo
     'host' => 'localhost',
-    'database' => 'los_juegos_del_hambre', // Nombre exacto de tu Base de Datos del TP
+    'database' => 'torneo_duelos', // Nombre exacto de tu Base de Datos del TP
     'username' => 'root',                  // Usuario por defecto
-    'password' => 'tu_contraseña_aquí',    // Pon acá la contraseña que elegiste al instalar el motor
+    'password' => '1234',    // Pon acá la contraseña que elegiste al instalar el motor
     'port' => 3306,
     'charset' => 'utf8mb4'
 ]);

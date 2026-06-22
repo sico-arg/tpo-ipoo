@@ -3,7 +3,6 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include_once './Personaje/Personaje.php';
 include_once './Personaje/Guerrero.php';
 include_once './Personaje/Mago.php';
 include_once './Personaje/Arquero.php';
@@ -149,7 +148,7 @@ class Torneo
     public function rankingPersonajes()
     {
         $ranking = $this->personajes;
-        usort($ranking, function($a, $b) {
+        usort($ranking, function ($a, $b) {
             return $b->getDuelosGanados() <=> $a->getDuelosGanados();
         });
         return $ranking;
@@ -158,8 +157,20 @@ class Torneo
     // ==================================================
     //  ALIASES FOR OLD/INCORRECT STUDENT METHOD NAMES
     // ==================================================
-    public function listarPersona() { return $this->listarPersonajes(); }
-    public function listarArma() { return $this->listarArmas(); }
-    public function listarArena() { return $this->listarArenas(); }
-    public function rankingPersonaje() { return $this->rankingPersonajes(); }
+    public function listarPersona()
+    {
+        return $this->listarPersonajes();
+    }
+    public function listarArma()
+    {
+        return $this->listarArmas();
+    }
+    public function listarArena()
+    {
+        return $this->listarArenas();
+    }
+    public function rankingPersonaje()
+    {
+        return $this->rankingPersonajes();
+    }
 }
