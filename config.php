@@ -1,7 +1,7 @@
 <?php
 // D:\Dev\IPOO\tpo-ipoo\config.php
 
-require '/Medoo.php';
+require 'Medoo.php';
 
 use Medoo\Medoo;
 
