@@ -4,57 +4,57 @@
 //                 INCLUSIONES                  
 // ==========================================
 
-include_once __DIR__ . '/Personaje.php';
+require_once 'src/Personaje/Personaje.php';
 
 /**
- * Clase Guerrero
+ * Clase Mago
  * 
  */
-class Guerrero extends Personaje
+class Mago extends Personaje
 {
 
     // ==========================================
     //                 ATRIBUTOS                  
     // ==========================================
 
-    private int $fuerza;
-    private int $armadura;
+    private int $mana;
+    private int $inteligencia;
 
     // ==========================================
     //                 CONSTRUCTOR               
     // ==========================================
 
-    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, string $estado, ?Arma $arma, int $fuerza, int $armadura)
+    public function __construct(string $nombre, int $nivel, int $puntosVida, int $energia, int $mana, int $inteligencia, ?Arma $arma = null, ?int $id = null, int $duelosGanados = 0, int $duelosPerdidos = 0)
     {
-        parent::__construct($id, $nombre, $nivel, $puntosVida, $energia, $duelosGanados, $duelosPerdidos, $estado, $arma);
-        $this->fuerza = $fuerza;
-        $this->armadura = $armadura;
+        parent::__construct($nombre, $nivel, $puntosVida, $energia, $arma, $id, $duelosGanados, $duelosPerdidos);
+        $this->mana = $mana;
+        $this->inteligencia = $inteligencia;
     }
 
 
     // ==========================================
     //                 GETTERS                 
     // ==========================================
-    public function getFuerza()
+    public function getMana()
     {
-        return $this->fuerza;
+        return $this->mana;
     }
-    public function getArmadura()
+    public function getInteligencia()
     {
-        return $this->armadura;
+        return $this->inteligencia;
     }
 
     // ==========================================
     //                 SETTERS                 
     // ==========================================
 
-    private function setFuerza(int $nuevaFuerza)
+    private function setMana(int $nuevoMana)
     {
-        $this->fuerza = $nuevaFuerza;
+        $this->mana = $nuevoMana;
     }
-    private function setArmadura(int $nuevaArmadura)
+    private function setInteligencia(int $nuevaInteligencia)
     {
-        $this->armadura = $nuevaArmadura;
+        $this->inteligencia = $nuevaInteligencia;
     }
 
     // ==========================================
@@ -62,25 +62,26 @@ class Guerrero extends Personaje
     // ==========================================
 
     /**
-     * Este metodo calcula el poder base del guerrero
+     * Este metodo calcula el poder base del mago
      * @return int
      */
     public function calcularPoderBase(): int
     {
         $nivelActual = $this->getNivel();
-        $poderBase = $nivelActual * 15;
+        $manaActual = $this->getMana();
+        $poderBase = $nivelActual * 10 + $manaActual;
         return $poderBase;
     }
 
     /**
-     * Este metodo calcula el poder especial del guerrero
+     * Este metodo calcula el poder especial del mago
      * @return int
      */
     public function calcularPoderEspecial(): int
     {
-        $fuerzaActual = $this->getFuerza();
-        $armaduraActual = $this->getArmadura();
-        $poderEspecial = $fuerzaActual * 2 + $armaduraActual;
+        $inteligenciaActual = $this->getInteligencia();
+        $manaActual = $this->getMana();
+        $poderEspecial = $inteligenciaActual + $manaActual * 3;
         return $poderEspecial;
     }
 }

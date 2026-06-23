@@ -4,57 +4,57 @@
 //                 INCLUSIONES                  
 // ==========================================
 
-include_once __DIR__ . '/Personaje.php';
+require_once 'src/Personaje/Personaje.php';
 
 /**
- * Clase Arquero
+ * Clase Guerrero
  * 
  */
-class Arquero extends Personaje
+class Guerrero extends Personaje
 {
 
     // ==========================================
     //                 ATRIBUTOS                  
     // ==========================================
 
-    private int $precision;
-    private int $velocidad;
+    private int $fuerza;
+    private int $armadura;
 
     // ==========================================
     //                 CONSTRUCTOR               
     // ==========================================
 
-    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, string $estado, ?Arma $arma, int $precision, int $velocidad)
+    public function __construct(string $nombre, int $nivel, int $puntosVida, int $energia, int $fuerza, int $armadura, ?Arma $arma = null, ?int $id = null, int $duelosGanados = 0, int $duelosPerdidos = 0)
     {
-        parent::__construct($id, $nombre, $nivel, $puntosVida, $energia, $duelosGanados, $duelosPerdidos, $estado, $arma);
-        $this->precision = $precision;
-        $this->velocidad = $velocidad;
+        parent::__construct($nombre, $nivel, $puntosVida, $energia, $arma, $id, $duelosGanados, $duelosPerdidos);
+        $this->fuerza = $fuerza;
+        $this->armadura = $armadura;
     }
 
 
     // ==========================================
     //                 GETTERS                 
     // ==========================================
-    public function getPrecision()
+    public function getFuerza()
     {
-        return $this->precision;
+        return $this->fuerza;
     }
-    public function getVelocidad()
+    public function getArmadura()
     {
-        return $this->velocidad;
+        return $this->armadura;
     }
 
     // ==========================================
     //                 SETTERS                 
     // ==========================================
 
-    private function setPrecision(int $nuevaPrecision)
+    private function setFuerza(int $nuevaFuerza)
     {
-        $this->precision = $nuevaPrecision;
+        $this->fuerza = $nuevaFuerza;
     }
-    private function setVelocidad(int $nuevaVelocidad)
+    private function setArmadura(int $nuevaArmadura)
     {
-        $this->velocidad = $nuevaVelocidad;
+        $this->armadura = $nuevaArmadura;
     }
 
     // ==========================================
@@ -62,14 +62,13 @@ class Arquero extends Personaje
     // ==========================================
 
     /**
-     * Este metodo calcula el poder base del arquero
+     * Este metodo calcula el poder base del guerrero
      * @return int
      */
     public function calcularPoderBase(): int
     {
         $nivelActual = $this->getNivel();
-        $precisionActual = $this->getPrecision();
-        $poderBase = $nivelActual * 12 + $precisionActual;
+        $poderBase = $nivelActual * 15;
         return $poderBase;
     }
 
@@ -79,9 +78,9 @@ class Arquero extends Personaje
      */
     public function calcularPoderEspecial(): int
     {
-        $velocidadActual = $this->getVelocidad();
-        $precisionActual = $this->getPrecision();
-        $poderEspecial = $precisionActual * 2 + $velocidadActual;
+        $fuerzaActual = $this->getFuerza();
+        $armaduraActual = $this->getArmadura();
+        $poderEspecial = $fuerzaActual * 2 + $armaduraActual;
         return $poderEspecial;
     }
 }

@@ -3,12 +3,10 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include_once './Personaje/Guerrero.php';
-include_once './Personaje/Mago.php';
-include_once './Personaje/Arquero.php';
-include_once './Arma.php';
-include_once './Arena.php';
-include_once './Duelo.php';
+require_once 'src/Personaje/Guerrero.php';
+require_once 'src/Personaje/Mago.php';
+require_once 'src/Personaje/Arquero.php';
+require_once 'src/Duelo.php';
 
 class Torneo
 {

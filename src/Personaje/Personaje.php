@@ -4,8 +4,9 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include_once __DIR__ . '/../Arma.php';
-include_once __DIR__ . '/../Arena.php';
+require_once 'src/Arma.php';
+require_once 'src/Arena.php';
+
 /**
  * Clase abstracta personaje
  * 
@@ -17,7 +18,7 @@ abstract class Personaje
     //                 ATRIBUTOS                 
     // ==========================================
 
-    protected int $id;
+    protected ?int $id;
     protected string $nombre;
     protected int $nivel;
     protected int $puntosVida;
@@ -31,7 +32,7 @@ abstract class Personaje
     //                 CONSTRUCTOR                 
     // ==========================================
 
-    public function __construct(int $id, string $nombre, int $nivel, int $puntosVida, int $energia, int $duelosGanados, int $duelosPerdidos, string $estado, ?Arma $arma = null)
+    public function __construct(string $nombre, int $nivel, int $puntosVida, int $energia, ?Arma $arma = null, ?int $id = null, int $duelosGanados = 0, int $duelosPerdidos = 0)
     {
         $this->id = $id;
         $this->nombre = $nombre;
@@ -40,7 +41,7 @@ abstract class Personaje
         $this->energia = $energia;
         $this->duelosGanados = $duelosGanados;
         $this->duelosPerdidos = $duelosPerdidos;
-        $this->estado = $estado;
+        $this->estado = $this->calcularEstadoPersonaje();
         $this->arma = $arma;
     }
 
@@ -95,7 +96,7 @@ abstract class Personaje
     {
         $this->nombre = $nuevoNombre;
     }
-    public function setNivel(int $nuevoNivel)
+    private function setNivel(int $nuevoNivel)
     {
         $this->nivel = $nuevoNivel;
     }
@@ -107,15 +108,15 @@ abstract class Personaje
     {
         $this->energia = $nuevaEnergia;
     }
-    public function setDuelosGanados(int $nuevosDuelosGanados)
+    private function setDuelosGanados(int $nuevosDuelosGanados)
     {
         $this->duelosGanados = $nuevosDuelosGanados;
     }
-    public function setDuelosPerdidos(int $nuevosDuelosPerdidos)
+    private function setDuelosPerdidos(int $nuevosDuelosPerdidos)
     {
         $this->duelosPerdidos = $nuevosDuelosPerdidos;
     }
-    public function setEstado(string $nuevoEstado)
+    private function setEstado(string $nuevoEstado)
     {
         $this->estado = $nuevoEstado;
     }
@@ -257,6 +258,69 @@ abstract class Personaje
     {
         $duelosPerdidosActual = $this->getDuelosPerdidos();
         $this->setDuelosPerdidos($duelosPerdidosActual + 1);
+    }
+
+    private function calcularEstadoPersonaje()
+    {
+        $puntosVidaActual = $this->getPuntosVida();
+        $estado = 'disponible';
+        if ($puntosVidaActual <= 30 && $puntosVidaActual > 0) {
+            $estado = 'lesionado';
+        } elseif ($puntosVidaActual <= 0) {
+            $estado = 'retirado';
+        }
+        return $estado;
+    }
+
+    public function tipoPersonaje()
+    {
+        $personaje = $this;
+        $tipoPersonaje = 'guerrero';
+        if ($personaje instanceof Mago) {
+            $tipoPersonaje = 'mago';
+        } elseif ($personaje instanceof Arquero) {
+            $tipoPersonaje = 'Arquero';
+        }
+        return $tipoPersonaje;
+    }
+
+    // ==========================================
+    //                 MÉTODOS BD                
+    // ==========================================
+
+    public function guardar()
+    {
+        global $database;
+        $id = $this->getId();
+        $armaEquipada = $this->getArma();
+        $armaEquipadaId = $armaEquipada ? $armaEquipada->getId() : null;
+
+        if ($id) {
+            $database->update("personajes", [
+                "nombre" => $this->getNombre(),
+                "tipoPersonaje" => $this->tipoPersonaje(),
+                "nivel" => $this->getNivel(),
+                "puntosVida" => $this->getPuntosVida(),
+                "energia" => $this->getEnergia(),
+                "duelosGanados" => $this->getDuelosGanados(),
+                "duelosPerdidos" => $this->getDuelosPerdidos(),
+                "estado" => $this->getEstado(),
+                "idArmaEquipada" => $armaEquipadaId
+
+            ], ["id" => $this->getId()]);
+        } else {
+            $database->insert("personajes", [
+                "nombre" => $this->getNombre(),
+                "tipoPersonaje" => $this->tipoPersonaje(),
+                "nivel" => $this->getNivel(),
+                "puntosVida" => $this->getPuntosVida(),
+                "energia" => $this->getEnergia(),
+                "duelosGanados" => $this->getDuelosGanados(),
+                "duelosPerdidos" => $this->getDuelosPerdidos(),
+                "estado" => $this->getEstado(),
+                "idArmaEquipada" => $armaEquipadaId
+            ]);
+        }
     }
 
     /**

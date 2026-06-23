@@ -4,8 +4,6 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include_once __DIR__ . '/Personaje/Personaje.php';
-
 /**
  * Clase Arma
  * 
@@ -17,7 +15,7 @@ class Arma
     //                 ATRIBUTOS                  
     // ==========================================
 
-    private int $id;
+    private ?int $id;
     private string $nombre;
     private string $tipo;
     private int $danioBase;
@@ -28,7 +26,7 @@ class Arma
     //                 CONSTRUCTOR                  
     // ==========================================
 
-    public function __construct(int $id, string $nombre, string $tipo, int $danioBase, int $nivelMinimo, string $estado)
+    public function __construct(string $nombre, string $tipo, int $danioBase, int $nivelMinimo, string $estado, ?int $id = null)
     {
         $this->id = $id;
         $this->nombre = $nombre;

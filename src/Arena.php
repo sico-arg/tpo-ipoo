@@ -4,8 +4,6 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include_once __DIR__ . '/Personaje/Personaje.php';
-
 class Arena
 {
 
@@ -13,7 +11,7 @@ class Arena
     //                 ATRIBUTOS                
     // ==========================================
 
-    private int $id;
+    private ?int $id;
     private string $nombre;
     private int $dificultad;
     private int $capacidadPublico;
@@ -23,7 +21,7 @@ class Arena
     //                 CONSTRUCTOR                
     // ==========================================
 
-    public function __construct(int $id, string $nombre, int $dificultad, int $capacidadPublico, string $clima)
+    public function __construct(string $nombre, int $dificultad, int $capacidadPublico, string $clima, ?int $id = null)
     {
         $this->id = $id;
         $this->nombre = $nombre;
@@ -105,7 +103,7 @@ class Arena
             } elseif ($climaActual == "tormenta") {
                 $modificador = 15;
             }
-        // CASO ARQUERO
+            // CASO ARQUERO
         } elseif ($personaje instanceof Arquero) {
             if ($climaActual == "lluvia") {
                 $modificador = -10;
@@ -114,7 +112,7 @@ class Arena
             } elseif ($climaActual == "niebla") {
                 $modificador = -15;
             }
-        // CASO GUERRERO
+            // CASO GUERRERO
         } else {
             if ($climaActual == "tormenta") {
                 $modificador = -5;

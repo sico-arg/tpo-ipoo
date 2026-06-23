@@ -4,27 +4,29 @@
 //                 INCLUSIONES                 
 // ==========================================
 
-include_once __DIR__ . '/Personaje/Personaje.php';
-include_once __DIR__ . '/Arena.php';
+require_once 'src/Personaje/Personaje.php';
 
 class Duelo
 {
     // ==========================================
     //                 ATRIBUTOS                 
     // ==========================================
-    private int $id;
+    private ?int $id;
     private Personaje $personaje1;
     private Personaje $personaje2;
     private Arena $arena;
     private string $fecha;
     private string $estado;
     private ?Personaje $ganador;
+    private ?int $poderPersonaje1 = null;
+    private ?int $poderPersonaje2 = null;
+    private ?int $danioAplicado = null;
 
     // ==========================================
     //                 CONSTRUCTOR                 
     // ==========================================
 
-    public function __construct(int $id, Personaje $personaje1, Personaje $personaje2, Arena $arena, string $fecha, string $estado, ?Personaje $ganador = null)
+    public function __construct(Personaje $personaje1, Personaje $personaje2, Arena $arena, string $fecha, string $estado, ?Personaje $ganador = null, ?int $id = null)
     {
         $this->id = $id;
         $this->personaje1 = $personaje1;
@@ -33,6 +35,9 @@ class Duelo
         $this->fecha = $fecha;
         $this->estado = $estado;
         $this->ganador = $ganador;
+        $this->poderPersonaje1 = null;
+        $this->poderPersonaje2 = null;
+        $this->danioAplicado = null;
     }
 
     // ==========================================
@@ -67,6 +72,18 @@ class Duelo
     {
         return $this->ganador;
     }
+    public function getPoderPersonaje1()
+    {
+        return $this->poderPersonaje1;
+    }
+    public function getPoderPersonaje2()
+    {
+        return $this->poderPersonaje2;
+    }
+    public function getDanioAplicado()
+    {
+        return $this->danioAplicado;
+    }
 
     // ==========================================
     //                 SETTERS                 
@@ -99,6 +116,18 @@ class Duelo
     public function setGanador(?Personaje $nuevoGanador)
     {
         $this->ganador = $nuevoGanador;
+    }
+    private function setPoderPersonaje1(int $poder)
+    {
+        $this->poderPersonaje1 = $poder;
+    }
+    private function setPoderPersonaje2(int $poder)
+    {
+        $this->poderPersonaje2 = $poder;
+    }
+    private function setDanioAplicado(int $danio)
+    {
+        $this->danioAplicado = $danio;
     }
 
     // ==========================================
@@ -160,7 +189,7 @@ class Duelo
         $personaje2Actual = $this->getPersonaje2();
         $puedenRealizarDuelo = $this->puedeRealizarse();
         $ganadorDuelo = $this->obtenerGanador();
-        $arenaActual = $this->getArena();
+        $danioAplicar = $this->calcularDanio();
 
         if ($puedenRealizarDuelo) {
             if ($ganadorDuelo === $personaje1Actual) {
@@ -170,7 +199,7 @@ class Duelo
                 $personaje1Actual->sumarDuelosGanados();
 
                 //Acciones a personaje 2 en caso de que gane personaje 1
-                $personaje2Actual->recibirDanio($personaje1Actual->calcularPoderTotal($arenaActual) - $personaje2Actual->calcularPoderTotal($arenaActual));
+                $personaje2Actual->recibirDanio($danioAplicar);
                 $personaje2Actual->sumarDuelosPerdidos();
                 $personaje2Actual->perderEnergia(5);
             } elseif ($ganadorDuelo === $personaje2Actual) {
@@ -180,7 +209,7 @@ class Duelo
                 $personaje2Actual->sumarDuelosGanados();
 
                 //Acciones a personaje 1 en caso de que gane personaje 2
-                $personaje1Actual->recibirDanio($personaje2Actual->calcularPoderTotal($arenaActual) - $personaje1Actual->calcularPoderTotal($arenaActual));
+                $personaje1Actual->recibirDanio($danioAplicar);
                 $personaje1Actual->sumarDuelosPerdidos();
                 $personaje1Actual->perderEnergia(5);
             } else {
@@ -188,6 +217,11 @@ class Duelo
                 // The README says "El personaje con mayor poder será declarado ganador."
                 // In case of exact tie, we just do nothing or treat as tie.
             }
+            //Actualizar datos de Poder y Danio al realizarze un duelo
+            $this->setPoderPersonaje1($this->calcularPoderPersonaje1());
+            $this->setPoderPersonaje2($this->calcularPoderPersonaje2());
+            $this->setDanioAplicado($danioAplicar);
+
             $this->setEstado('realizado');
             $this->setGanador($ganadorDuelo);
             return true;
@@ -199,9 +233,8 @@ class Duelo
     {
         $personaje1Actual = $this->getPersonaje1();
         $personaje2Actual = $this->getPersonaje2();
-        $arenaActual = $this->getArena();
-        $poderTotalPersonaje1 = $personaje1Actual->calcularPoderTotal($arenaActual);
-        $poderTotalPersonaje2 = $personaje2Actual->calcularPoderTotal($arenaActual);
+        $poderTotalPersonaje1 = $this->calcularPoderPersonaje1();
+        $poderTotalPersonaje2 = $this->calcularPoderPersonaje2();
         $personajeGanador = null;
         if ($poderTotalPersonaje1 > $poderTotalPersonaje2) {
             $personajeGanador = $personaje1Actual;
@@ -209,5 +242,35 @@ class Duelo
             $personajeGanador = $personaje2Actual;
         }
         return $personajeGanador;
+    }
+
+    private function calcularDanio()
+    {
+        $danio = 0;
+        $poderPersonaje1 = $this->calcularPoderPersonaje1();
+        $poderPersonaje2 = $this->calcularPoderPersonaje2();
+        if ($poderPersonaje1 > $poderPersonaje2) {
+            $danio = $poderPersonaje1 - $poderPersonaje2;
+        } elseif ($poderPersonaje1 < $poderPersonaje2) {
+            $danio = $poderPersonaje2 - $poderPersonaje1;
+        }
+
+        return $danio;
+    }
+
+    private function calcularPoderPersonaje1()
+    {
+        $personaje1Actual = $this->getPersonaje1();
+        $arenaActual = $this->getArena();
+        $poderPersonaje1 = $personaje1Actual->calcularPoderTotal($arenaActual);
+        return $poderPersonaje1;
+    }
+
+    private function calcularPoderPersonaje2()
+    {
+        $personaje2Actual = $this->getPersonaje2();
+        $arenaActual = $this->getArena();
+        $poderPersonaje2 = $personaje2Actual->calcularPoderTotal($arenaActual);
+        return $poderPersonaje2;
     }
 }
