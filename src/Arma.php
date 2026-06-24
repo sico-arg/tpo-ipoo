@@ -69,7 +69,7 @@ class Arma
     //                 SETTERS                  
     // ==========================================
 
-    public function setId(int $nuevoId)
+    public function setId(?int $nuevoId)
     {
         $this->id = $nuevoId;
     }
@@ -132,5 +132,120 @@ class Arma
             }
         }
         return $equipado;
+    }
+
+    // ==========================================
+    //                 MÉTODOS BD                
+    // ==========================================
+
+    /**
+     * Este metodo guarda o actualiza el arma en la base de datos.
+     * Si el arma tiene ID, actualiza sus datos. Si no tiene, la inserta como nueva.
+     * @return void
+     */
+    public function guardar()
+    {
+        global $database;
+        $id = $this->getId();
+
+        $datos = [
+            "nombre" => $this->getNombre(),
+            "tipo" => $this->getTipo(),
+            "danioBase" => $this->getDanioBase(),
+            "nivelMinimo" => $this->getNivelMinimo(),
+            "estado" => $this->getEstado(),
+        ];
+        if ($id) {
+            $database->update("armas", $datos, ["id" => $id]);
+        } else {
+            $database->insert("armas", $datos);
+            $this->setId($database->id());
+        }
+    }
+
+    /**
+     * Este metodo elimina el arma de la base de datos usando su ID
+     * @return void
+     */
+    public function eliminar()
+    {
+        global $database;
+        $id = $this->getId();
+        if ($id) {
+            $database->delete("armas", ["id" => $id]);
+            $this->setId(null);
+        } else {
+            echo "El arma no existe en la base de datos";
+        }
+    }
+
+    /**
+     * Este metodo busca un arma en la base de datos por su ID y retorna un objeto Arma
+     * @param int $idBusqueda
+     * @return Arma|null
+     */
+    public static function busquedaPorId(int $idBusqueda): Arma|null
+    {
+        global $database;
+        $armaRetorno = null;
+
+        $listaId = $database->get("armas", "*", ["id" => $idBusqueda]);
+
+        if ($listaId) {
+            $armaRetorno = new Arma(
+                $listaId["nombre"],
+                $listaId["tipo"],
+                (int)$listaId["danioBase"],
+                (int)$listaId["nivelMinimo"],
+                $listaId["estado"],
+                (int)$listaId["id"],
+            );
+        }
+        return $armaRetorno;
+    }
+
+    /**
+     * Este metodo lista todas las armas de la base de datos y las retorna como un arreglo de objetos
+     * @return array
+     */
+    public static function listar(): array
+    {
+        global $database;
+        $listaArmas = $database->select("armas", "*");
+        return self::instanciarDesdeBD($listaArmas);
+    }
+
+    /**
+     * Este metodo lista todas las armas disponibles de la base de datos y las retorna como un arreglo de objetos
+     * @return array
+     */
+    public static function listarDisponibles(): array
+    {
+        global $database;
+        $listaArmas = $database->select("armas", "*", ["estado" => "disponible"]);
+        return self::instanciarDesdeBD($listaArmas);
+    }
+
+    /**
+     * Metodo auxiliar para instanciar un arreglo de objetos Arma a partir de resultados de BD
+     * @param array|null $filasBD
+     * @return array
+     */
+    private static function instanciarDesdeBD(?array $filasBD): array
+    {
+        $armasObjetos = [];
+        if ($filasBD) {
+            foreach ($filasBD as $arma) {
+                $armasObjetos[] = new Arma(
+                    $arma["nombre"],
+                    $arma["tipo"],
+                    (int)$arma["danioBase"],
+                    (int)$arma["nivelMinimo"],
+                    $arma["estado"],
+                    (int)$arma["id"],
+                );
+            }
+        }
+        return $armasObjetos;
     }
 }

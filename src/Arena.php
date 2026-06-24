@@ -59,7 +59,7 @@ class Arena
     //                 SETTERS                 
     // ==========================================
 
-    public function setid(int $nuevoId)
+    public function setid(?int $nuevoId)
     {
         $this->id = $nuevoId;
     }
@@ -122,5 +122,124 @@ class Arena
         }
 
         return $modificador;
+    }
+
+    // ==========================================
+    //                 MÉTODOS BD                
+    // ==========================================
+
+    /**
+     * Este metodo guarda o actualiza la arena en la base de datos.
+     * Si la arena tiene ID, actualiza sus datos. Si no tiene, la inserta como nueva.
+     * @return void
+     */
+    public function guardar()
+    {
+        global $database;
+        $id = $this->getId();
+
+        $datos = [
+            "nombre" => $this->getNombre(),
+            "dificultad" => $this->getdificultad(),
+            "capacidadPublico" => $this->getcapaciadadPublico(),
+            "clima" => $this->getclima(),
+        ];
+        if ($id) {
+            $database->update("arenas", $datos, ["id" => $id]);
+        } else {
+            $database->insert("arenas", $datos);
+            $this->setId($database->id());
+        }
+    }
+
+    /**
+     * Este metodo elimina la arena de la base de datos usando su ID
+     * @return void
+     */
+    public function eliminar()
+    {
+        global $database;
+        $id = $this->getId();
+        if ($id) {
+            $database->delete("arenas", ["id" => $id]);
+            $this->setId(null);
+        } else {
+            echo "La arena no existe en la base de datos";
+        }
+    }
+
+    /**
+     * Este metodo busca una arena en la base de datos por su ID y retorna un objeto Arena
+     * @param int $idBusqueda
+     * @return Arena|null
+     */
+    public static function busquedaPorId(int $idBusqueda): Arena|null
+    {
+        global $database;
+        $arenaRetorno = null;
+
+        $listaId = $database->get("arenas", "*", ["id" => $idBusqueda]);
+
+        if ($listaId) {
+            $arenaRetorno = new Arena(
+                $listaId["nombre"],
+                (int)$listaId["dificultad"],
+                (int)$listaId["capacidadPublico"],
+                $listaId["clima"],
+                (int)$listaId["id"],
+            );
+        }
+        return $arenaRetorno;
+    }
+
+    /**
+     * Este metodo lista todas las arenas de la base de datos y las retorna como un arreglo de objetos
+     * @return array
+     */
+    public static function listar(): array
+    {
+        global $database;
+        $listaArenas = $database->select("arenas", "*");
+        return self::instanciarDesdeBD($listaArenas);
+    }
+
+    /**
+     * Este metodo obtiene la arena donde más duelos se realizaron
+     * @return Arena|null
+     */
+    public static function obtenerArenaMasDuelos(): Arena|null
+    {
+        global $database;
+        $resultado = $database->query(
+            "SELECT idArena, COUNT(*) as cant FROM duelos GROUP BY idArena ORDER BY cant DESC LIMIT 1"
+        )->fetchAll();
+
+        if ($resultado && count($resultado) > 0) {
+            $idArena = (int)$resultado[0]["idArena"];
+            return self::busquedaPorId($idArena);
+        }
+        return null;
+    }
+
+    /**
+     * Metodo auxiliar para instanciar un arreglo de objetos Arena a partir de resultados de BD
+     * @param array|null $filasBD
+     * @return array
+     */
+    private static function instanciarDesdeBD(?array $filasBD): array
+    {
+        $arenasObjetos = [];
+        if ($filasBD) {
+            foreach ($filasBD as $arena) {
+                $arenasObjetos[] = new Arena(
+                    $arena["nombre"],
+                    (int)$arena["dificultad"],
+                    (int)$arena["capacidadPublico"],
+                    $arena["clima"],
+                    (int)$arena["id"],
+                );
+            }
+        }
+        return $arenasObjetos;
     }
 }

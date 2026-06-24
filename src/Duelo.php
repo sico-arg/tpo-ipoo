@@ -89,7 +89,7 @@ class Duelo
     //                 SETTERS                 
     // ==========================================
 
-    private function setId(int $nuevoId)
+    private function setId(?int $nuevoId)
     {
         $this->id = $nuevoId;
     }
@@ -213,9 +213,7 @@ class Duelo
                 $personaje1Actual->sumarDuelosPerdidos();
                 $personaje1Actual->perderEnergia(5);
             } else {
-                // En caso de empate, ambos sumamos duelos perdidos?
-                // The README says "El personaje con mayor poder será declarado ganador."
-                // In case of exact tie, we just do nothing or treat as tie.
+                // En caso de empate exacto, no se aplican consecuencias
             }
             //Actualizar datos de Poder y Danio al realizarze un duelo
             $this->setPoderPersonaje1($this->calcularPoderPersonaje1());
@@ -272,5 +270,154 @@ class Duelo
         $arenaActual = $this->getArena();
         $poderPersonaje2 = $personaje2Actual->calcularPoderTotal($arenaActual);
         return $poderPersonaje2;
+    }
+
+    // ==========================================
+    //                 MÉTODOS BD                
+    // ==========================================
+
+    /**
+     * Este metodo guarda o actualiza el duelo en la base de datos.
+     * Si el duelo tiene ID, actualiza sus datos. Si no tiene, lo inserta como nuevo.
+     * @return void
+     */
+    public function guardar()
+    {
+        global $database;
+        $id = $this->getId();
+
+        $datos = [
+            "idPersonaje1" => $this->getPersonaje1()->getId(),
+            "idPersonaje2" => $this->getPersonaje2()->getId(),
+            "idArena" => $this->getArena()->getId(),
+            "fecha" => $this->getFecha(),
+            "estado" => $this->getEstado(),
+            "idGanador" => $this->getGanador() ? $this->getGanador()->getId() : null,
+            "poderPersonaje1" => $this->calcularPoderPersonaje1(),
+            "poderPersonaje2" => $this->calcularPoderPersonaje2(),
+            "danioAplicado" => $this->calcularDanio()
+        ];
+        if ($id) {
+            $database->update("duelos", $datos, ["id" => $id]);
+        } else {
+            $database->insert("duelos", $datos);
+            $this->setId($database->id());
+        }
+    }
+
+    /**
+     * Este metodo elimina el duelo de la base de datos usando su ID
+     * @return void
+     */
+    public function eliminar()
+    {
+        global $database;
+        $id = $this->getId();
+        if ($id) {
+            $database->delete("duelos", ["id" => $id]);
+            $this->setId(null);
+        } else {
+            echo "El duelo no existe en la base de datos";
+        }
+    }
+
+    /**
+     * Este metodo busca un duelo en la base de datos por su ID y retorna un objeto Duelo
+     * @param int $idBusqueda
+     * @return Duelo|null
+     */
+    public static function busquedaPorId(int $idBusqueda): Duelo|null
+    {
+        global $database;
+        $dueloRetorno = null;
+
+        $listaId = $database->get("duelos", "*", ["id" => $idBusqueda]);
+
+        if ($listaId) {
+            $dueloRetorno = new Duelo(
+                Personaje::busquedaPorId((int)$listaId["idPersonaje1"]),
+                Personaje::busquedaPorId((int)$listaId["idPersonaje2"]),
+                Arena::busquedaPorId((int)$listaId["idArena"]),
+                $listaId["fecha"],
+                $listaId["estado"],
+                $listaId["idGanador"] ? Personaje::busquedaPorId((int)$listaId["idGanador"]) : null,
+                (int)$listaId["id"],
+            );
+        }
+        return $dueloRetorno;
+    }
+
+    /**
+     * Este metodo lista todos los duelos de la base de datos y los retorna como un arreglo de objetos
+     * @return array
+     */
+    public static function listar(): array
+    {
+        global $database;
+        $listaDuelos = $database->select("duelos", "*");
+        return self::instanciarDesdeBD($listaDuelos);
+    }
+
+    /**
+     * Este metodo lista todos los duelos realizados
+     * @return array
+     */
+    public static function listarRealizados(): array
+    {
+        global $database;
+        $listaDuelos = $database->select("duelos", "*", ["estado" => "realizado"]);
+        return self::instanciarDesdeBD($listaDuelos);
+    }
+
+    /**
+     * Este metodo lista todos los duelos pendientes
+     * @return array
+     */
+    public static function listarPendientes(): array
+    {
+        global $database;
+        $listaDuelos = $database->select("duelos", "*", ["estado" => "pendiente"]);
+        return self::instanciarDesdeBD($listaDuelos);
+    }
+
+    /**
+     * Este metodo muestra el historial de duelos de un personaje
+     * @param int $idPersonaje
+     * @return array
+     */
+    public static function historialPorPersonaje(int $idPersonaje): array
+    {
+        global $database;
+        $listaDuelos = $database->select("duelos", "*", [
+            "OR" => [
+                "idPersonaje1" => $idPersonaje,
+                "idPersonaje2" => $idPersonaje
+            ]
+        ]);
+        return self::instanciarDesdeBD($listaDuelos);
+    }
+
+    /**
+     * Metodo auxiliar para instanciar un arreglo de objetos Duelo a partir de resultados de BD
+     * @param array|null $filasBD
+     * @return array
+     */
+    private static function instanciarDesdeBD(?array $filasBD): array
+    {
+        $duelosObjetos = [];
+        if ($filasBD) {
+            foreach ($filasBD as $duelo) {
+                $duelosObjetos[] = new Duelo(
+                    Personaje::busquedaPorId((int)$duelo["idPersonaje1"]),
+                    Personaje::busquedaPorId((int)$duelo["idPersonaje2"]),
+                    Arena::busquedaPorId((int)$duelo["idArena"]),
+                    $duelo["fecha"],
+                    $duelo["estado"],
+                    $duelo["idGanador"] ? Personaje::busquedaPorId((int)$duelo["idGanador"]) : null,
+                    (int)$duelo["id"],
+                );
+            }
+        }
+        return $duelosObjetos;
     }
 }

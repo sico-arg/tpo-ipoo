@@ -87,7 +87,10 @@ class Torneo
     }
 
     /**
-     * Equips a weapon to a character if allowed.
+     * Este metodo equipa un arma a un personaje si es permitido
+     * @param Personaje $personaje
+     * @param Arma $arma
+     * @return bool
      */
     public function equiparArma(Personaje $personaje, Arma $arma)
     {
@@ -101,7 +104,9 @@ class Torneo
     }
 
     /**
-     * Executes a specific duel.
+     * Este metodo ejecuta un duelo especifico
+     * @param Duelo $duelo
+     * @return bool
      */
     public function realizarDuelo(Duelo $duelo)
     {
@@ -109,7 +114,8 @@ class Torneo
     }
 
     /**
-     * Lists all characters.
+     * Este metodo lista todos los personajes del torneo
+     * @return array
      */
     public function listarPersonajes()
     {
@@ -117,7 +123,8 @@ class Torneo
     }
 
     /**
-     * Lists all weapons.
+     * Este metodo lista todas las armas del torneo
+     * @return array
      */
     public function listarArmas()
     {
@@ -125,7 +132,8 @@ class Torneo
     }
 
     /**
-     * Lists all arenas.
+     * Este metodo lista todas las arenas del torneo
+     * @return array
      */
     public function listarArenas()
     {
@@ -133,7 +141,8 @@ class Torneo
     }
 
     /**
-     * Lists all duels.
+     * Este metodo lista todos los duelos del torneo
+     * @return array
      */
     public function listarDuelos()
     {
@@ -141,7 +150,8 @@ class Torneo
     }
 
     /**
-     * Returns characters sorted by victories (duelosGanados) descending.
+     * Este metodo retorna los personajes ordenados por cantidad de victorias de forma descendente
+     * @return array
      */
     public function rankingPersonajes()
     {
@@ -153,7 +163,7 @@ class Torneo
     }
 
     // ==================================================
-    //  ALIASES FOR OLD/INCORRECT STUDENT METHOD NAMES
+    //  ALIASES PARA NOMBRES DE MÉTODOS ANTERIORES
     // ==================================================
     public function listarPersona()
     {

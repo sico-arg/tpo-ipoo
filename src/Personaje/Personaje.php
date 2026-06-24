@@ -92,6 +92,11 @@ abstract class Personaje
     //                 SETTERS                 
     // ==========================================
 
+    private function setId(?int $nuevoId)
+    {
+        $this->id = $nuevoId;
+    }
+
     private function setNombre(string $nuevoNombre)
     {
         $this->nombre = $nuevoNombre;
@@ -279,7 +284,7 @@ abstract class Personaje
         if ($personaje instanceof Mago) {
             $tipoPersonaje = 'mago';
         } elseif ($personaje instanceof Arquero) {
-            $tipoPersonaje = 'Arquero';
+            $tipoPersonaje = 'arquero';
         }
         return $tipoPersonaje;
     }
@@ -288,6 +293,11 @@ abstract class Personaje
     //                 MÉTODOS BD                
     // ==========================================
 
+    /**
+     * Este metodo guarda o actualiza el personaje en la base de datos.
+     * Si el personaje tiene ID, actualiza sus datos. Si no tiene, lo inserta como nuevo.
+     * @return void
+     */
     public function guardar()
     {
         global $database;
@@ -295,33 +305,275 @@ abstract class Personaje
         $armaEquipada = $this->getArma();
         $armaEquipadaId = $armaEquipada ? $armaEquipada->getId() : null;
 
-        if ($id) {
-            $database->update("personajes", [
-                "nombre" => $this->getNombre(),
-                "tipoPersonaje" => $this->tipoPersonaje(),
-                "nivel" => $this->getNivel(),
-                "puntosVida" => $this->getPuntosVida(),
-                "energia" => $this->getEnergia(),
-                "duelosGanados" => $this->getDuelosGanados(),
-                "duelosPerdidos" => $this->getDuelosPerdidos(),
-                "estado" => $this->getEstado(),
-                "idArmaEquipada" => $armaEquipadaId
+        $datos = [
+            "nombre" => $this->getNombre(),
+            "tipoPersonaje" => $this->tipoPersonaje(),
+            "nivel" => $this->getNivel(),
+            "puntosVida" => $this->getPuntosVida(),
+            "energia" => $this->getEnergia(),
+            "duelosGanados" => $this->getDuelosGanados(),
+            "duelosPerdidos" => $this->getDuelosPerdidos(),
+            "estado" => $this->getEstado(),
+            "idArmaEquipada" => $armaEquipadaId
+        ];
 
-            ], ["id" => $this->getId()]);
+        if ($this instanceof Guerrero) {
+            $datos["fuerza"] = $this->getFuerza();
+            $datos["armadura"] = $this->getArmadura();
+        } elseif ($this instanceof Mago) {
+            $datos["mana"] = $this->getMana();
+            $datos["inteligencia"] = $this->getInteligencia();
+        } elseif ($this instanceof Arquero) {
+            $datos["precisionPersonaje"] = $this->getPrecision();
+            $datos["velocidad"] = $this->getVelocidad();
+        }
+
+        if ($id) {
+            $database->update("personajes", $datos, ["id" => $id]);
         } else {
-            $database->insert("personajes", [
-                "nombre" => $this->getNombre(),
-                "tipoPersonaje" => $this->tipoPersonaje(),
-                "nivel" => $this->getNivel(),
-                "puntosVida" => $this->getPuntosVida(),
-                "energia" => $this->getEnergia(),
-                "duelosGanados" => $this->getDuelosGanados(),
-                "duelosPerdidos" => $this->getDuelosPerdidos(),
-                "estado" => $this->getEstado(),
-                "idArmaEquipada" => $armaEquipadaId
-            ]);
+            $database->insert("personajes", $datos);
+            $this->setId($database->id());
         }
     }
+
+    /**
+     * Este metodo elimina el personaje de la base de datos usando su ID
+     * @return void
+     */
+    public function eliminar()
+    {
+        global $database;
+        $id = $this->getId();
+        if ($id) {
+            $database->delete("personajes", ["id" => $id]);
+            $this->setId(null);
+        } else {
+            echo "El personaje no existe en la base de datos";
+        }
+    }
+
+    /**
+     * Este metodo busca un personaje en la base de datos por su ID y retorna un objeto del tipo correspondiente
+     * @param int $idBusqueda
+     * @return Personaje|null
+     */
+    public static function busquedaPorId(int $idBusqueda): Personaje|null
+    {
+        global $database;
+        $personajeRetorno = null;
+
+        $listaId = $database->get("personajes", "*", ["id" => $idBusqueda]);
+
+        if ($listaId) {
+            //Logica de arma equipada
+            $idArma = $listaId["idArmaEquipada"];
+            $armaEquipadaBD = $idArma ? Arma::busquedaPorId((int)$idArma) : null;
+            $tipoPersonajeBD = $listaId["tipoPersonaje"];
+            switch ($tipoPersonajeBD) {
+                case 'guerrero':
+                    $personajeRetorno = new Guerrero(
+                        $listaId["nombre"],
+                        (int)$listaId["nivel"],
+                        (int)$listaId["puntosVida"],
+                        (int)$listaId["energia"],
+                        (int)$listaId["fuerza"],
+                        (int)$listaId["armadura"],
+                        $armaEquipadaBD,
+                        (int)$listaId["id"],
+                        (int)$listaId["duelosGanados"],
+                        (int)$listaId["duelosPerdidos"]
+                    );
+                    break;
+                case 'mago':
+                    $personajeRetorno = new Mago(
+                        $listaId["nombre"],
+                        (int)$listaId["nivel"],
+                        (int)$listaId["puntosVida"],
+                        (int)$listaId["energia"],
+                        (int)$listaId["mana"],
+                        (int)$listaId["inteligencia"],
+                        $armaEquipadaBD,
+                        (int)$listaId["id"],
+                        (int)$listaId["duelosGanados"],
+                        (int)$listaId["duelosPerdidos"]
+                    );
+                    break;
+                case 'arquero':
+                    $personajeRetorno = new Arquero(
+                        $listaId["nombre"],
+                        (int)$listaId["nivel"],
+                        (int)$listaId["puntosVida"],
+                        (int)$listaId["energia"],
+                        (int)$listaId["precisionPersonaje"],
+                        (int)$listaId["velocidad"],
+                        $armaEquipadaBD,
+                        (int)$listaId["id"],
+                        (int)$listaId["duelosGanados"],
+                        (int)$listaId["duelosPerdidos"]
+                    );
+                    break;
+            }
+        }
+        return $personajeRetorno;
+    }
+
+    /**
+     * Este metodo lista todos los personajes de la base de datos y los retorna como un arreglo de objetos
+     * @return array
+     */
+    public static function listar(): array
+    {
+        global $database;
+        $listaPersonajes = $database->select("personajes", "*");
+        return self::instanciarDesdeBD($listaPersonajes);
+    }
+
+    /**
+     * Este metodo lista todos los personajes disponibles para duelar
+     * @return array
+     */
+    public static function listarDisponibles(): array
+    {
+        global $database;
+        $listaPersonajes = $database->select("personajes", "*", ["estado" => "disponible"]);
+        return self::instanciarDesdeBD($listaPersonajes);
+    }
+
+    /**
+     * Este metodo lista todos los personajes lesionados
+     * @return array
+     */
+    public static function listarLesionados(): array
+    {
+        global $database;
+        $listaPersonajes = $database->select("personajes", "*", ["estado" => "lesionado"]);
+        return self::instanciarDesdeBD($listaPersonajes);
+    }
+
+    /**
+     * Este metodo lista todos los personajes retirados
+     * @return array
+     */
+    public static function listarRetirados(): array
+    {
+        global $database;
+        $listaPersonajes = $database->select("personajes", "*", ["estado" => "retirado"]);
+        return self::instanciarDesdeBD($listaPersonajes);
+    }
+
+    /**
+     * Este metodo retorna el ranking de personajes ordenado por duelos ganados
+     * @return array
+     */
+    public static function obtenerRanking(): array
+    {
+        global $database;
+        $listaPersonajes = $database->select("personajes", "*", ["ORDER" => ["duelosGanados" => "DESC"]]);
+        return self::instanciarDesdeBD($listaPersonajes);
+    }
+
+    /**
+     * Este metodo retorna el personaje con más victorias
+     * @return Personaje|null
+     */
+    public static function obtenerPersonajeMasVictorias(): Personaje|null
+    {
+        global $database;
+        $resultado = $database->select("personajes", "*", ["ORDER" => ["duelosGanados" => "DESC"], "LIMIT" => 1]);
+        if ($resultado) {
+            $instancias = self::instanciarDesdeBD($resultado);
+            return $instancias[0] ?? null;
+        }
+        return null;
+    }
+
+    /**
+     * Este metodo calcula y retorna el porcentaje de victorias de cada personaje
+     * @return array Arreglo asociativo ['nombre' => porcentaje]
+     */
+    public static function obtenerPorcentajeVictorias(): array
+    {
+        global $database;
+        $porcentajes = [];
+        $personajes = $database->select("personajes", ["nombre", "duelosGanados", "duelosPerdidos"]);
+        if ($personajes) {
+            foreach ($personajes as $p) {
+                $ganados = (int)$p["duelosGanados"];
+                $perdidos = (int)$p["duelosPerdidos"];
+                $total = $ganados + $perdidos;
+                $porcentaje = $total > 0 ? ($ganados / $total) * 100 : 0;
+                $porcentajes[$p["nombre"]] = round($porcentaje, 2);
+            }
+        }
+        return $porcentajes;
+    }
+
+    /**
+     * Metodo auxiliar para instanciar un arreglo de objetos Personaje a partir de resultados de BD
+     * @param array|null $filasBD
+     * @return array
+     */
+    private static function instanciarDesdeBD(?array $filasBD): array
+    {
+        $personajesObjetos = [];
+        if ($filasBD) {
+            foreach ($filasBD as $personaje) {
+                $tipoPersonajeBD = $personaje["tipoPersonaje"];
+                //Logica de arma equipada
+                $idArma = $personaje["idArmaEquipada"];
+                $armaEquipadaBD = $idArma ? Arma::busquedaPorId((int)$idArma) : null;
+                switch ($tipoPersonajeBD) {
+                    case 'guerrero':
+                        $personajesObjetos[] = new Guerrero(
+                            $personaje["nombre"],
+                            (int)$personaje["nivel"],
+                            (int)$personaje["puntosVida"],
+                            (int)$personaje["energia"],
+                            (int)$personaje["fuerza"],
+                            (int)$personaje["armadura"],
+                            $armaEquipadaBD,
+                            (int)$personaje["id"],
+                            (int)$personaje["duelosGanados"],
+                            (int)$personaje["duelosPerdidos"]
+                        );
+                        break;
+                    case 'mago':
+                        $personajesObjetos[] = new Mago(
+                            $personaje["nombre"],
+                            (int)$personaje["nivel"],
+                            (int)$personaje["puntosVida"],
+                            (int)$personaje["energia"],
+                            (int)$personaje["mana"],
+                            (int)$personaje["inteligencia"],
+                            $armaEquipadaBD,
+                            (int)$personaje["id"],
+                            (int)$personaje["duelosGanados"],
+                            (int)$personaje["duelosPerdidos"]
+                        );
+                        break;
+                    case 'arquero':
+                        $personajesObjetos[] = new Arquero(
+                            $personaje["nombre"],
+                            (int)$personaje["nivel"],
+                            (int)$personaje["puntosVida"],
+                            (int)$personaje["energia"],
+                            (int)$personaje["precisionPersonaje"],
+                            (int)$personaje["velocidad"],
+                            $armaEquipadaBD,
+                            (int)$personaje["id"],
+                            (int)$personaje["duelosGanados"],
+                            (int)$personaje["duelosPerdidos"]
+                        );
+                        break;
+                }
+            }
+        }
+        return $personajesObjetos;
+    }
+
+    // ==========================================
+    //                 MÉTODOS ABSTRACTOS               
+    // ==========================================
 
     /**
      * Este metodo abstracto calcula el poder base del personaje
