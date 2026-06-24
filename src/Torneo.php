@@ -181,25 +181,4 @@ class Torneo
 
         return $valorRetornar;
     }
-
-
-    // ==================================================
-    //  ALIASES PARA NOMBRES DE MÉTODOS ANTERIORES
-    // ==================================================
-    public function listarPersona()
-    {
-        return $this->listarPersonajes();
-    }
-    public function listarArma()
-    {
-        return $this->listarArmas();
-    }
-    public function listarArena()
-    {
-        return $this->listarArenas();
-    }
-    public function rankingPersonaje()
-    {
-        return $this->rankingPersonajes();
-    }
 }
