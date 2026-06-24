@@ -84,4 +84,11 @@ class Arquero extends Personaje
         $poderEspecial = $precisionActual * 2 + $velocidadActual;
         return $poderEspecial;
     }
+
+    public function __toString(): string
+    {
+        return "Arquero:[" . parent::__toString() . 
+               ", precision: " . $this->getPrecision() . 
+               ", velocidad: " . $this->getVelocidad() . "]";
+    }
 }

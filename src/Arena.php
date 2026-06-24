@@ -254,4 +254,13 @@ class Arena
         }
         return $arenasObjetos;
     }
+
+    public function __toString(): string
+    {
+        return "Arena:[id: " . ($this->getId() ?? 'null') . 
+               ", nombre: " . $this->getNombre() . 
+               ", dificultad: " . $this->getDificultad() . 
+               ", capacidadPublico: " . $this->getCapacidadPublico() . 
+               ", clima: " . $this->getClima() . "]";
+    }
 }

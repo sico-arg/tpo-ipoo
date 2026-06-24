@@ -571,6 +571,20 @@ abstract class Personaje
         return $personajesObjetos;
     }
 
+    public function __toString(): string
+    {
+        $armaStr = $this->getArma() ? (string)$this->getArma() : 'null';
+        return "id: " . ($this->getId() ?? 'null') .
+            ", nombre: " . $this->getNombre() .
+            ", nivel: " . $this->getNivel() .
+            ", puntosVida: " . $this->getPuntosVida() .
+            ", energia: " . $this->getEnergia() .
+            ", duelosGanados: " . $this->getDuelosGanados() .
+            ", duelosPerdidos: " . $this->getDuelosPerdidos() .
+            ", estado: " . $this->getEstado() .
+            ", arma: " . $armaStr;
+    }
+
     // ==========================================
     //                 MÉTODOS ABSTRACTOS               
     // ==========================================

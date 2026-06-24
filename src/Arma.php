@@ -262,4 +262,14 @@ class Arma
         }
         return $armasObjetos;
     }
+
+    public function __toString(): string
+    {
+        return "Arma:[id: " . ($this->getId() ?? 'null') . 
+               ", nombre: " . $this->getNombre() . 
+               ", tipo: " . $this->getTipo() . 
+               ", danioBase: " . $this->getDanioBase() . 
+               ", nivelMinimo: " . $this->getNivelMinimo() . 
+               ", estado: " . $this->getEstado() . "]";
+    }
 }

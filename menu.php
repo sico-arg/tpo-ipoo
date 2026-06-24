@@ -62,14 +62,9 @@ function solicitarEntero($mensaje)
  */
 function imprimirPersonaje(Personaje $p)
 {
-    $cyan    = "\033[36m";
     $yellow  = "\033[33m";
-    $green   = "\033[32m";
-    $magenta = "\033[35m";
     $reset   = "\033[0m";
-
-    $armaStr = $p->getArma() ? $p->getArma()->getNombre() : "Ninguna";
-    echo "{$magenta}[ID: {$p->getId()}]{$reset} {$yellow}{$p->getNombre()}{$reset} | {$cyan}Clase:{$reset} " . get_class($p) . " | {$cyan}Nivel:{$reset} {$p->getNivel()} | {$cyan}Vida:{$reset} {$p->getPuntosVida()} | {$cyan}Energia:{$reset} {$p->getEnergia()} | {$cyan}Victorias:{$reset} {$p->getDuelosGanados()} | {$cyan}Estado:{$reset} {$green}{$p->getEstado()}{$reset} | {$cyan}Arma:{$reset} {$armaStr}\n";
+    echo "{$yellow}" . $p . "{$reset}\n";
 }
 
 /**
@@ -78,12 +73,9 @@ function imprimirPersonaje(Personaje $p)
  */
 function imprimirArma(Arma $a)
 {
-    $cyan    = "\033[36m";
     $yellow  = "\033[33m";
-    $magenta = "\033[35m";
     $reset   = "\033[0m";
-
-    echo "{$magenta}[ID: {$a->getId()}]{$reset} {$yellow}{$a->getNombre()}{$reset} | {$cyan}Tipo:{$reset} {$a->getTipo()} | {$cyan}Daño:{$reset} {$a->getDanioBase()} | {$cyan}Nivel Min:{$reset} {$a->getNivelMinimo()} | {$cyan}Estado:{$reset} {$a->getEstado()}\n";
+    echo "{$yellow}" . $a . "{$reset}\n";
 }
 
 /**
@@ -92,12 +84,9 @@ function imprimirArma(Arma $a)
  */
 function imprimirArena(Arena $a)
 {
-    $cyan    = "\033[36m";
     $yellow  = "\033[33m";
-    $magenta = "\033[35m";
     $reset   = "\033[0m";
-
-    echo "{$magenta}[ID: {$a->getId()}]{$reset} {$yellow}{$a->getNombre()}{$reset} | {$cyan}Dificultad:{$reset} {$a->getDificultad()} | {$cyan}Capacidad:{$reset} {$a->getCapacidadPublico()} | {$cyan}Clima:{$reset} {$a->getClima()}\n";
+    echo "{$yellow}" . $a . "{$reset}\n";
 }
 
 /**
@@ -106,14 +95,9 @@ function imprimirArena(Arena $a)
  */
 function imprimirDuelo(Duelo $d)
 {
-    $cyan    = "\033[36m";
     $yellow  = "\033[33m";
-    $green   = "\033[32m";
-    $magenta = "\033[35m";
     $reset   = "\033[0m";
-
-    $ganador = $d->getGanador() ? $d->getGanador()->getNombre() : "N/A";
-    echo "{$magenta}[ID: {$d->getId()}]{$reset} {$yellow}{$d->getPersonaje1()->getNombre()} vs {$d->getPersonaje2()->getNombre()}{$reset} | {$cyan}Arena:{$reset} {$d->getArena()->getNombre()} | {$cyan}Fecha:{$reset} {$d->getFecha()} | {$cyan}Estado:{$reset} {$d->getEstado()} | {$cyan}Ganador:{$reset} {$green}{$ganador}{$reset}\n";
+    echo "{$yellow}" . $d . "{$reset}\n";
 }
 
 /**

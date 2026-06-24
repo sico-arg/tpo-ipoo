@@ -84,4 +84,11 @@ class Mago extends Personaje
         $poderEspecial = $manaActual + ($inteligenciaActual * 3);
         return $poderEspecial;
     }
+
+    public function __toString(): string
+    {
+        return "Mago:[" . parent::__toString() . 
+               ", mana: " . $this->getMana() . 
+               ", inteligencia: " . $this->getInteligencia() . "]";
+    }
 }

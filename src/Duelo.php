@@ -434,4 +434,26 @@ class Duelo
         }
         return $duelosObjetos;
     }
+
+    public function __toString(): string
+    {
+        $p1 = $this->getPersonaje1() ? $this->getPersonaje1()->getNombre() : 'null';
+        $p2 = $this->getPersonaje2() ? $this->getPersonaje2()->getNombre() : 'null';
+        $arena = $this->getArena() ? $this->getArena()->getNombre() : 'null';
+        $ganador = $this->getGanador() ? $this->getGanador()->getNombre() : 'null';
+        $poder1 = $this->getPoderPersonaje1() !== null ? $this->getPoderPersonaje1() : 'null';
+        $poder2 = $this->getPoderPersonaje2() !== null ? $this->getPoderPersonaje2() : 'null';
+        $danio = $this->getDanioAplicado() !== null ? $this->getDanioAplicado() : 'null';
+
+        return "Duelo:[id: " . ($this->getId() ?? 'null') . 
+               ", personaje1: " . $p1 . 
+               ", personaje2: " . $p2 . 
+               ", arena: " . $arena . 
+               ", fecha: " . $this->getFecha() . 
+               ", estado: " . $this->getEstado() . 
+               ", ganador: " . $ganador . 
+               ", poderPersonaje1: " . $poder1 . 
+               ", poderPersonaje2: " . $poder2 . 
+               ", danioAplicado: " . $danio . "]";
+    }
 }
