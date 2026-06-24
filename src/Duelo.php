@@ -148,7 +148,7 @@ class Duelo
         $personaje2Retirado = $this->estaRetirado($personaje2Actual);
         $puedeRealizarse = false;
 
-        if ($personaje1Actual !== $personaje2Actual && !$personaje1Lesionado && !$personaje2Lesionado && !$personaje1Retirado && !$personaje2Retirado) $puedeRealizarse = true;
+        if ($personaje1Actual->getId() !== $personaje2Actual->getId() && !$personaje1Lesionado && !$personaje2Lesionado && !$personaje1Retirado && !$personaje2Retirado) $puedeRealizarse = true;
         return $puedeRealizarse;
     }
 
@@ -190,6 +190,7 @@ class Duelo
         $puedenRealizarDuelo = $this->puedeRealizarse();
         $ganadorDuelo = $this->obtenerGanador();
         $danioAplicar = $this->calcularDanio();
+        $dueloRealizado = false;
 
         if ($puedenRealizarDuelo) {
             if ($ganadorDuelo === $personaje1Actual) {
@@ -222,9 +223,9 @@ class Duelo
 
             $this->setEstado('realizado');
             $this->setGanador($ganadorDuelo);
-            return true;
+            $dueloRealizado = true;
         }
-        return false;
+        return $dueloRealizado;
     }
 
     public function obtenerGanador()
@@ -445,15 +446,15 @@ class Duelo
         $poder2 = $this->getPoderPersonaje2() !== null ? $this->getPoderPersonaje2() : 'null';
         $danio = $this->getDanioAplicado() !== null ? $this->getDanioAplicado() : 'null';
 
-        return "Duelo:[id: " . ($this->getId() ?? 'null') . 
-               ", personaje1: " . $p1 . 
-               ", personaje2: " . $p2 . 
-               ", arena: " . $arena . 
-               ", fecha: " . $this->getFecha() . 
-               ", estado: " . $this->getEstado() . 
-               ", ganador: " . $ganador . 
-               ", poderPersonaje1: " . $poder1 . 
-               ", poderPersonaje2: " . $poder2 . 
-               ", danioAplicado: " . $danio . "]";
+        return "Duelo:[id: " . ($this->getId() ?? 'null') .
+            ", personaje1: " . $p1 .
+            ", personaje2: " . $p2 .
+            ", arena: " . $arena .
+            ", fecha: " . $this->getFecha() .
+            ", estado: " . $this->getEstado() .
+            ", ganador: " . $ganador .
+            ", poderPersonaje1: " . $poder1 .
+            ", poderPersonaje2: " . $poder2 .
+            ", danioAplicado: " . $danio . "]";
     }
 }

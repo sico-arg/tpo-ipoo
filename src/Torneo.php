@@ -155,12 +155,33 @@ class Torneo
      */
     public function rankingPersonajes()
     {
-        $ranking = $this->personajes;
-        usort($ranking, function ($a, $b) {
-            return $b->getDuelosGanados() <=> $a->getDuelosGanados();
-        });
-        return $ranking;
+        $arrayPersonajes = $this->personajes;
+        /**
+         * El [$this, 'ordenarPersonajes'] es porque si ponemos solo ordenarPersonaje 
+         * intenta llegar a una funcion global como count(), para que sepa donde buscar 
+         * el metodo primero le pasamos la instancia y luego le pasamos el metodo
+         */
+        usort($arrayPersonajes, [$this, 'ordenarPersonajes']);
+        return $arrayPersonajes;
     }
+
+    public function ordenarPersonajes(Personaje $personaje1, Personaje $personaje2)
+    {
+        $valorRetornar = 0;
+        $victorias1 = $personaje1->getDuelosGanados();
+        $victorias2 = $personaje2->getDuelosGanados();
+
+        if ($victorias1 < $victorias2) {
+            $valorRetornar = 1;  // Si el 2 tiene más victorias, va antes (orden descendente)
+        } elseif ($victorias1 > $victorias2) {
+            $valorRetornar = -1; // Si el 1 tiene más victorias, va antes
+        } else {
+            $valorRetornar = 0;  // Empate
+        }
+
+        return $valorRetornar;
+    }
+
 
     // ==================================================
     //  ALIASES PARA NOMBRES DE MÉTODOS ANTERIORES

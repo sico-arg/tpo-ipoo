@@ -222,15 +222,16 @@ class Arena
     public static function obtenerArenaMasDuelos(): Arena|null
     {
         global $database;
+        $arenaMasDuelos = null;
         $resultado = $database->query(
             "SELECT idArena, COUNT(*) as cant FROM duelos GROUP BY idArena ORDER BY cant DESC LIMIT 1"
         )->fetchAll();
 
         if ($resultado && count($resultado) > 0) {
             $idArena = (int)$resultado[0]["idArena"];
-            return self::busquedaPorId($idArena);
+            $arenaMasDuelos = self::busquedaPorId($idArena);
         }
-        return null;
+        return $arenaMasDuelos;
     }
 
     /**
@@ -257,10 +258,10 @@ class Arena
 
     public function __toString(): string
     {
-        return "Arena:[id: " . ($this->getId() ?? 'null') . 
-               ", nombre: " . $this->getNombre() . 
-               ", dificultad: " . $this->getDificultad() . 
-               ", capacidadPublico: " . $this->getCapacidadPublico() . 
-               ", clima: " . $this->getClima() . "]";
+        return "Arena:[id: " . ($this->getId() ?? 'null') .
+            ", nombre: " . $this->getNombre() .
+            ", dificultad: " . $this->getDificultad() .
+            ", capacidadPublico: " . $this->getCapacidadPublico() .
+            ", clima: " . $this->getClima() . "]";
     }
 }

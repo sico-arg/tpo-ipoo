@@ -163,6 +163,9 @@ abstract class Personaje
         $nuevosPuntosVida = $puntosVida + $cantidad;
         if ($nuevosPuntosVida > 100) {
             $nuevosPuntosVida = 100;
+            $this->setEstado("disponible");
+        } elseif ($nuevosPuntosVida > 30) {
+            $this->setEstado("disponible");
         }
         $this->setPuntosVida($nuevosPuntosVida);
     }
@@ -479,12 +482,13 @@ abstract class Personaje
     public static function obtenerPersonajeMasVictorias(): Personaje|null
     {
         global $database;
+        $personaje = null;
         $resultado = $database->select("personajes", "*", ["ORDER" => ["duelosGanados" => "DESC"], "LIMIT" => 1]);
         if ($resultado) {
             $instancias = self::instanciarDesdeBD($resultado);
-            return $instancias[0] ?? null;
+            $personaje = $instancias[0] ?? null;
         }
-        return null;
+        return $personaje;
     }
 
     /**

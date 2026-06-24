@@ -21,9 +21,11 @@ require_once 'src/Torneo.php';
  */
 function solicitarNumeroEntre($min, $max)
 {
+    $red = "\033[31m";
+    $reset = "\033[0m";
     $numero = trim(fgets(STDIN));
     while (!is_numeric($numero) || $numero < $min || $numero > $max) {
-        echo "\033[31mError. Ingrese un número entre $min y $max: \033[0m";
+        echo "{$red}Error. Ingrese un número entre $min y $max: {$reset}";
         $numero = trim(fgets(STDIN));
     }
     return (int)$numero;
@@ -36,7 +38,9 @@ function solicitarNumeroEntre($min, $max)
  */
 function leerCadena($mensaje)
 {
-    echo "\033[33m► {$mensaje}\033[0m";
+    $yellow = "\033[33m";
+    $reset = "\033[0m";
+    echo "{$yellow}► {$mensaje}{$reset}";
     return trim(fgets(STDIN));
 }
 
@@ -47,10 +51,13 @@ function leerCadena($mensaje)
  */
 function solicitarEntero($mensaje)
 {
-    echo "\033[33m► {$mensaje}\033[0m";
+    $yellow = "\033[33m";
+    $red = "\033[31m";
+    $reset = "\033[0m";
+    echo "{$yellow}► {$mensaje}{$reset}";
     $numero = trim(fgets(STDIN));
     while (!is_numeric($numero)) {
-        echo "\033[31mError. Ingrese un valor numérico válido: \033[0m";
+        echo "{$red}Error. Ingrese un valor numérico válido: {$reset}";
         $numero = trim(fgets(STDIN));
     }
     return (int)$numero;

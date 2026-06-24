@@ -83,4 +83,11 @@ class Guerrero extends Personaje
         $poderEspecial = $fuerzaActual * 2 + $armaduraActual;
         return $poderEspecial;
     }
+
+    public function __toString(): string
+    {
+        return "Guerrero:[" . parent::__toString() . 
+               ", fuerza: " . $this->getFuerza() . 
+               ", armadura: " . $this->getArmadura() . "]";
+    }
 }
