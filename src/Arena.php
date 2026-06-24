@@ -34,23 +34,23 @@ class Arena
     //                 GETTERS                 
     // ==========================================
 
-    public function getid()
+    public function getId()
     {
         return $this->id;
     }
-    public function getnombre()
+    public function getNombre()
     {
         return $this->nombre;
     }
-    public function getdificultad()
+    public function getDificultad()
     {
         return $this->dificultad;
     }
-    public function getcapaciadadPublico()
+    public function getCapacidadPublico()
     {
         return $this->capacidadPublico;
     }
-    public function getclima()
+    public function getClima()
     {
         return $this->clima;
     }
@@ -59,25 +59,25 @@ class Arena
     //                 SETTERS                 
     // ==========================================
 
-    public function setid(?int $nuevoId)
+    private function setId(?int $nuevoId)
     {
         $this->id = $nuevoId;
     }
-    public function setnombre(string $nombre)
+    private function setNombre(string $nombre)
     {
         $this->nombre = $nombre;
     }
-    public function setdificultad(int $nuevaDificultad)
+    private function setDificultad(int $nuevaDificultad)
     {
         $this->dificultad = $nuevaDificultad;
     }
-    public function setcapaciadadPublico(int $nuevaCapacidadPublico)
+    private function setCapacidadPublico(int $nuevaCapacidadPublico)
     {
         $this->capacidadPublico = $nuevaCapacidadPublico;
     }
-    public function setclima(string $nuevoClima)
+    private function setClima(string $nuevoClima)
     {
-        if ($nuevoClima != "normal" || $nuevoClima != "lluvia" || $nuevoClima != "tormenta" || $nuevoClima != "niebla") return;
+        if ($nuevoClima != "normal" && $nuevoClima != "lluvia" && $nuevoClima != "tormenta" && $nuevoClima != "niebla") return;
         $this->clima = $nuevoClima;
     }
 
@@ -86,13 +86,25 @@ class Arena
     // ==========================================
 
     /**
+     * Actualiza el clima y la capacidad de público de la arena.
+     * @param int $nuevaCapacidadPublico
+     * @param string $nuevoClima
+     * @return void
+     */
+    public function actualizarClimaYCapacidad(int $nuevaCapacidadPublico, string $nuevoClima)
+    {
+        $this->setCapacidadPublico($nuevaCapacidadPublico);
+        $this->setClima($nuevoClima);
+    }
+
+    /**
      * Este metodo calcula y retorna el modificador de clima segun el tipo de personaje
      * @param Personaje $personaje
      * @return int
      */
     public function calcularModificadorArena(Personaje $personaje): int
     {
-        $climaActual = $this->getclima();
+        $climaActual = $this->getClima();
         $modificador = 0;
 
         // Verificar el tipo de personaje y determinar modificadores según el clima
@@ -140,9 +152,9 @@ class Arena
 
         $datos = [
             "nombre" => $this->getNombre(),
-            "dificultad" => $this->getdificultad(),
-            "capacidadPublico" => $this->getcapaciadadPublico(),
-            "clima" => $this->getclima(),
+            "dificultad" => $this->getDificultad(),
+            "capacidadPublico" => $this->getCapacidadPublico(),
+            "clima" => $this->getClima(),
         ];
         if ($id) {
             $database->update("arenas", $datos, ["id" => $id]);

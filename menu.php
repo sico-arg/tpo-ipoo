@@ -9,134 +9,290 @@ require_once 'src/Arena.php';
 require_once 'src/Duelo.php';
 require_once 'src/Torneo.php';
 
-function leerEntrada($mensaje)
+/**************************************/
+/***** DEFINICION DE FUNCIONES ********/
+/**************************************/
+
+/**
+ * Esta función solicita al usuario un número dentro de un rango específico
+ * @param int $min
+ * @param int $max
+ * @return int
+ */
+function solicitarNumeroEntre($min, $max)
 {
-    echo $mensaje;
+    $numero = trim(fgets(STDIN));
+    while (!is_numeric($numero) || $numero < $min || $numero > $max) {
+        echo "\033[31mError. Ingrese un número entre $min y $max: \033[0m";
+        $numero = trim(fgets(STDIN));
+    }
+    return (int)$numero;
+}
+
+/**
+ * Esta función solicita al usuario una cadena de texto genérica
+ * @param string $mensaje
+ * @return string
+ */
+function leerCadena($mensaje)
+{
+    echo "\033[33m► {$mensaje}\033[0m";
     return trim(fgets(STDIN));
 }
 
+/**
+ * Esta función solicita al usuario un número entero genérico (sin límite)
+ * @param string $mensaje
+ * @return int
+ */
+function solicitarEntero($mensaje)
+{
+    echo "\033[33m► {$mensaje}\033[0m";
+    $numero = trim(fgets(STDIN));
+    while (!is_numeric($numero)) {
+        echo "\033[31mError. Ingrese un valor numérico válido: \033[0m";
+        $numero = trim(fgets(STDIN));
+    }
+    return (int)$numero;
+}
+
+/**
+ * Esta función muestra por pantalla los datos de un Personaje
+ * @param Personaje $p
+ */
 function imprimirPersonaje(Personaje $p)
 {
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
     $armaStr = $p->getArma() ? $p->getArma()->getNombre() : "Ninguna";
-    echo "[ID: {$p->getId()}] Nombre: {$p->getNombre()} | Clase: " . get_class($p) . " | Nivel: {$p->getNivel()} | Vida: {$p->getPuntosVida()} | Energia: {$p->getEnergia()} | Victorias: {$p->getDuelosGanados()} | Estado: {$p->getEstado()} | Arma: {$armaStr}\n";
+    echo "{$magenta}[ID: {$p->getId()}]{$reset} {$yellow}{$p->getNombre()}{$reset} | {$cyan}Clase:{$reset} " . get_class($p) . " | {$cyan}Nivel:{$reset} {$p->getNivel()} | {$cyan}Vida:{$reset} {$p->getPuntosVida()} | {$cyan}Energia:{$reset} {$p->getEnergia()} | {$cyan}Victorias:{$reset} {$p->getDuelosGanados()} | {$cyan}Estado:{$reset} {$green}{$p->getEstado()}{$reset} | {$cyan}Arma:{$reset} {$armaStr}\n";
 }
 
+/**
+ * Esta función muestra por pantalla los datos de un Arma
+ * @param Arma $a
+ */
 function imprimirArma(Arma $a)
 {
-    echo "[ID: {$a->getId()}] Nombre: {$a->getNombre()} | Tipo: {$a->getTipo()} | Daño: {$a->getDanioBase()} | Nivel Min: {$a->getNivelMinimo()} | Estado: {$a->getEstado()}\n";
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "{$magenta}[ID: {$a->getId()}]{$reset} {$yellow}{$a->getNombre()}{$reset} | {$cyan}Tipo:{$reset} {$a->getTipo()} | {$cyan}Daño:{$reset} {$a->getDanioBase()} | {$cyan}Nivel Min:{$reset} {$a->getNivelMinimo()} | {$cyan}Estado:{$reset} {$a->getEstado()}\n";
 }
 
+/**
+ * Esta función muestra por pantalla los datos de una Arena
+ * @param Arena $a
+ */
 function imprimirArena(Arena $a)
 {
-    echo "[ID: {$a->getid()}] Nombre: {$a->getnombre()} | Dificultad: {$a->getdificultad()} | Capacidad: {$a->getcapaciadadPublico()} | Clima: {$a->getclima()}\n";
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "{$magenta}[ID: {$a->getId()}]{$reset} {$yellow}{$a->getNombre()}{$reset} | {$cyan}Dificultad:{$reset} {$a->getDificultad()} | {$cyan}Capacidad:{$reset} {$a->getCapacidadPublico()} | {$cyan}Clima:{$reset} {$a->getClima()}\n";
 }
 
+/**
+ * Esta función muestra por pantalla los datos de un Duelo
+ * @param Duelo $d
+ */
 function imprimirDuelo(Duelo $d)
 {
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
     $ganador = $d->getGanador() ? $d->getGanador()->getNombre() : "N/A";
-    echo "[ID: {$d->getId()}] {$d->getPersonaje1()->getNombre()} vs {$d->getPersonaje2()->getNombre()} | Arena: {$d->getArena()->getnombre()} | Fecha: {$d->getFecha()} | Estado: {$d->getEstado()} | Ganador: {$ganador}\n";
+    echo "{$magenta}[ID: {$d->getId()}]{$reset} {$yellow}{$d->getPersonaje1()->getNombre()} vs {$d->getPersonaje2()->getNombre()}{$reset} | {$cyan}Arena:{$reset} {$d->getArena()->getNombre()} | {$cyan}Fecha:{$reset} {$d->getFecha()} | {$cyan}Estado:{$reset} {$d->getEstado()} | {$cyan}Ganador:{$reset} {$green}{$ganador}{$reset}\n";
 }
 
+/**
+ * Muestra y gestiona el menú principal
+ * @return int
+ */
+function seleccionarOpcionPrincipal()
+{
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "\n{$magenta}═══════════════════════════════════════════════{$reset}\n";
+    echo "{$yellow}        ⚔️  {$green}Los Juegos del Hambre - Menú{$reset}\n";
+    echo "{$magenta}═══════════════════════════════════════════════{$reset}\n\n";
+
+    echo "{$cyan} 1){$reset} Administrar Personajes\n";
+    echo "{$cyan} 2){$reset} Administrar Armas\n";
+    echo "{$cyan} 3){$reset} Administrar Arenas\n";
+    echo "{$cyan} 4){$reset} Administrar Duelos\n";
+    echo "{$cyan} 5){$reset} Consultas Obligatorias\n";
+    echo "{$cyan} 0){$reset} Salir\n\n";
+
+    echo "{$yellow}► Ingrese una opción (0-5): {$reset}";
+    return solicitarNumeroEntre(0, 5);
+}
+
+/**
+ * Muestra y gestiona el menú de Personajes
+ * @return int
+ */
+function seleccionarOpcionPersonajes()
+{
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "\n{$magenta}═══════════════════════════════════════════════{$reset}\n";
+    echo "{$yellow}        👥  {$green}Administrar Personajes{$reset}\n";
+    echo "{$magenta}═══════════════════════════════════════════════{$reset}\n\n";
+
+    echo "{$cyan} 1){$reset} Listar todos\n";
+    echo "{$cyan} 2){$reset} Registrar Guerrero\n";
+    echo "{$cyan} 3){$reset} Registrar Mago\n";
+    echo "{$cyan} 4){$reset} Registrar Arquero\n";
+    echo "{$cyan} 5){$reset} Recuperar personaje lesionado\n";
+    echo "{$cyan} 0){$reset} Volver\n\n";
+
+    echo "{$yellow}► Ingrese una opción (0-5): {$reset}";
+    return solicitarNumeroEntre(0, 5);
+}
+
+/**
+ * Submenú para gestionar Personajes
+ */
 function subMenuPersonajes()
 {
-    while (true) {
-        echo "\n--- ADMINISTRAR PERSONAJES ---\n";
-        echo "1. Listar todos\n";
-        echo "2. Registrar Guerrero\n";
-        echo "3. Registrar Mago\n";
-        echo "4. Registrar Arquero\n";
-        echo "5. Recuperar personaje lesionado\n";
-        echo "0. Volver\n";
+    $green = "\033[32m";
+    $red   = "\033[31m";
+    $reset = "\033[0m";
 
-        $op = leerEntrada("Opción: ");
-        if ($op == '0') break;
-
-        switch ($op) {
-            case '1':
+    do {
+        $opcion = seleccionarOpcionPersonajes();
+        switch ($opcion) {
+            case 1:
+                echo "\n";
                 $personajes = Personaje::listar();
                 foreach ($personajes as $p) imprimirPersonaje($p);
                 break;
-            case '2':
-                $nombre = leerEntrada("Nombre: ");
-                $nivel = (int)leerEntrada("Nivel: ");
-                $pv = (int)leerEntrada("Puntos de Vida: ");
-                $energia = (int)leerEntrada("Energía: ");
-                $fuerza = (int)leerEntrada("Fuerza: ");
-                $armadura = (int)leerEntrada("Armadura: ");
+            case 2:
+                $nombre = leerCadena("Nombre: ");
+                $nivel = solicitarEntero("Nivel: ");
+                $pv = solicitarEntero("Puntos de Vida: ");
+                $energia = solicitarEntero("Energía: ");
+                $fuerza = solicitarEntero("Fuerza: ");
+                $armadura = solicitarEntero("Armadura: ");
                 $g = new Guerrero($nombre, $nivel, $pv, $energia, $fuerza, $armadura);
                 $g->guardar();
-                echo "Guerrero guardado con ID {$g->getId()}\n";
+                echo "{$green}Guerrero guardado con ID {$g->getId()}{$reset}\n";
                 break;
-            case '3':
-                $nombre = leerEntrada("Nombre: ");
-                $nivel = (int)leerEntrada("Nivel: ");
-                $pv = (int)leerEntrada("Puntos de Vida: ");
-                $energia = (int)leerEntrada("Energía: ");
-                $mana = (int)leerEntrada("Mana: ");
-                $inteligencia = (int)leerEntrada("Inteligencia: ");
+            case 3:
+                $nombre = leerCadena("Nombre: ");
+                $nivel = solicitarEntero("Nivel: ");
+                $pv = solicitarEntero("Puntos de Vida: ");
+                $energia = solicitarEntero("Energía: ");
+                $mana = solicitarEntero("Mana: ");
+                $inteligencia = solicitarEntero("Inteligencia: ");
                 $m = new Mago($nombre, $nivel, $pv, $energia, $mana, $inteligencia);
                 $m->guardar();
-                echo "Mago guardado con ID {$m->getId()}\n";
+                echo "{$green}Mago guardado con ID {$m->getId()}{$reset}\n";
                 break;
-            case '4':
-                $nombre = leerEntrada("Nombre: ");
-                $nivel = (int)leerEntrada("Nivel: ");
-                $pv = (int)leerEntrada("Puntos de Vida: ");
-                $energia = (int)leerEntrada("Energía: ");
-                $precision = (int)leerEntrada("Precisión: ");
-                $velocidad = (int)leerEntrada("Velocidad: ");
+            case 4:
+                $nombre = leerCadena("Nombre: ");
+                $nivel = solicitarEntero("Nivel: ");
+                $pv = solicitarEntero("Puntos de Vida: ");
+                $energia = solicitarEntero("Energía: ");
+                $precision = solicitarEntero("Precisión: ");
+                $velocidad = solicitarEntero("Velocidad: ");
                 $a = new Arquero($nombre, $nivel, $pv, $energia, $precision, $velocidad);
                 $a->guardar();
-                echo "Arquero guardado con ID {$a->getId()}\n";
+                echo "{$green}Arquero guardado con ID {$a->getId()}{$reset}\n";
                 break;
-            case '5':
-                $id = (int)leerEntrada("ID del personaje lesionado: ");
+            case 5:
+                $id = solicitarEntero("ID del personaje lesionado: ");
                 $p = Personaje::busquedaPorId($id);
                 if ($p) {
                     if ($p->getEstado() == "lesionado") {
                         $p->recuperarVida(100);
                         $p->guardar();
-                        echo "Personaje recuperado exitosamente.\n";
+                        echo "{$green}Personaje recuperado exitosamente.{$reset}\n";
                     } else {
-                        echo "El personaje no está lesionado.\n";
+                        echo "{$red}El personaje no está lesionado.{$reset}\n";
                     }
                 } else {
-                    echo "Personaje no encontrado.\n";
+                    echo "{$red}Personaje no encontrado.{$reset}\n";
                 }
                 break;
         }
-    }
+    } while ($opcion != 0);
 }
 
+/**
+ * Muestra y gestiona el menú de Armas
+ * @return int
+ */
+function seleccionarOpcionArmas()
+{
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "\n{$magenta}═══════════════════════════════════════════════{$reset}\n";
+    echo "{$yellow}        🗡️  {$green}Administrar Armas{$reset}\n";
+    echo "{$magenta}═══════════════════════════════════════════════{$reset}\n\n";
+
+    echo "{$cyan} 1){$reset} Listar todas\n";
+    echo "{$cyan} 2){$reset} Registrar Arma\n";
+    echo "{$cyan} 3){$reset} Equipar Arma a Personaje\n";
+    echo "{$cyan} 0){$reset} Volver\n\n";
+
+    echo "{$yellow}► Ingrese una opción (0-3): {$reset}";
+    return solicitarNumeroEntre(0, 3);
+}
+
+/**
+ * Submenú para gestionar Armas
+ */
 function subMenuArmas()
 {
-    while (true) {
-        echo "\n--- ADMINISTRAR ARMAS ---\n";
-        echo "1. Listar todas\n";
-        echo "2. Registrar Arma\n";
-        echo "3. Equipar Arma a Personaje\n";
-        echo "0. Volver\n";
+    $green = "\033[32m";
+    $red   = "\033[31m";
+    $reset = "\033[0m";
 
-        $op = leerEntrada("Opción: ");
-        if ($op == '0') break;
-
-        switch ($op) {
-            case '1':
+    do {
+        $opcion = seleccionarOpcionArmas();
+        switch ($opcion) {
+            case 1:
+                echo "\n";
                 $armas = Arma::listar();
                 foreach ($armas as $a) imprimirArma($a);
                 break;
-            case '2':
-                $nombre = leerEntrada("Nombre: ");
-                $tipo = leerEntrada("Tipo: ");
-                $danio = (int)leerEntrada("Daño base: ");
-                $nivelMin = (int)leerEntrada("Nivel mínimo: ");
+            case 2:
+                $nombre = leerCadena("Nombre: ");
+                $tipo = leerCadena("Tipo: ");
+                $danio = solicitarEntero("Daño base: ");
+                $nivelMin = solicitarEntero("Nivel mínimo: ");
                 $a = new Arma($nombre, $tipo, $danio, $nivelMin, "disponible");
                 $a->guardar();
-                echo "Arma guardada con ID {$a->getId()}\n";
+                echo "{$green}Arma guardada con ID {$a->getId()}{$reset}\n";
                 break;
-            case '3':
-                $idArma = (int)leerEntrada("ID del arma: ");
-                $idPersonaje = (int)leerEntrada("ID del personaje: ");
+            case 3:
+                $idArma = solicitarEntero("ID del arma: ");
+                $idPersonaje = solicitarEntero("ID del personaje: ");
                 $arma = Arma::busquedaPorId($idArma);
                 $personaje = Personaje::busquedaPorId($idPersonaje);
                 if ($arma && $personaje) {
@@ -144,68 +300,117 @@ function subMenuArmas()
                     if ($torneo->equiparArma($personaje, $arma)) {
                         $personaje->guardar();
                         $arma->guardar();
-                        echo "Arma equipada exitosamente.\n";
+                        echo "{$green}Arma equipada exitosamente.{$reset}\n";
                     } else {
-                        echo "El arma no puede ser equipada por este personaje (nivel insuficiente o arma no disponible).\n";
+                        echo "{$red}El arma no puede ser equipada por este personaje (nivel insuficiente o arma no disponible).{$reset}\n";
                     }
                 } else {
-                    echo "Arma o personaje no encontrados.\n";
+                    echo "{$red}Arma o personaje no encontrados.{$reset}\n";
                 }
                 break;
         }
-    }
+    } while ($opcion != 0);
 }
 
+/**
+ * Muestra y gestiona el menú de Arenas
+ * @return int
+ */
+function seleccionarOpcionArenas()
+{
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "\n{$magenta}═══════════════════════════════════════════════{$reset}\n";
+    echo "{$yellow}        🏟️  {$green}Administrar Arenas{$reset}\n";
+    echo "{$magenta}═══════════════════════════════════════════════{$reset}\n\n";
+
+    echo "{$cyan} 1){$reset} Listar todas\n";
+    echo "{$cyan} 2){$reset} Registrar Arena\n";
+    echo "{$cyan} 0){$reset} Volver\n\n";
+
+    echo "{$yellow}► Ingrese una opción (0-2): {$reset}";
+    return solicitarNumeroEntre(0, 2);
+}
+
+/**
+ * Submenú para gestionar Arenas
+ */
 function subMenuArenas()
 {
-    while (true) {
-        echo "\n--- ADMINISTRAR ARENAS ---\n";
-        echo "1. Listar todas\n";
-        echo "2. Registrar Arena\n";
-        echo "0. Volver\n";
+    $green = "\033[32m";
+    $reset = "\033[0m";
 
-        $op = leerEntrada("Opción: ");
-        if ($op == '0') break;
-
-        switch ($op) {
-            case '1':
+    do {
+        $opcion = seleccionarOpcionArenas();
+        switch ($opcion) {
+            case 1:
+                echo "\n";
                 $arenas = Arena::listar();
                 foreach ($arenas as $a) imprimirArena($a);
                 break;
-            case '2':
-                $nombre = leerEntrada("Nombre: ");
-                $dificultad = (int)leerEntrada("Dificultad: ");
-                $capacidad = (int)leerEntrada("Capacidad de público: ");
-                $clima = leerEntrada("Clima (normal, lluvia, tormenta, niebla): ");
+            case 2:
+                $nombre = leerCadena("Nombre: ");
+                $dificultad = solicitarEntero("Dificultad: ");
+                $capacidad = solicitarEntero("Capacidad de público: ");
+                $clima = leerCadena("Clima (normal, lluvia, tormenta, niebla): ");
                 $a = new Arena($nombre, $dificultad, $capacidad, $clima);
                 $a->guardar();
-                echo "Arena guardada con ID {$a->getid()}\n";
+                echo "{$green}Arena guardada con ID {$a->getId()}{$reset}\n";
                 break;
         }
-    }
+    } while ($opcion != 0);
 }
 
+/**
+ * Muestra y gestiona el menú de Duelos
+ * @return int
+ */
+function seleccionarOpcionDuelos()
+{
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "\n{$magenta}═══════════════════════════════════════════════{$reset}\n";
+    echo "{$yellow}        ⚡  {$green}Administrar Duelos{$reset}\n";
+    echo "{$magenta}═══════════════════════════════════════════════{$reset}\n\n";
+
+    echo "{$cyan} 1){$reset} Listar todos\n";
+    echo "{$cyan} 2){$reset} Registrar Duelo\n";
+    echo "{$cyan} 3){$reset} Ejecutar Duelo Pendiente\n";
+    echo "{$cyan} 0){$reset} Volver\n\n";
+
+    echo "{$yellow}► Ingrese una opción (0-3): {$reset}";
+    return solicitarNumeroEntre(0, 3);
+}
+
+/**
+ * Submenú para gestionar Duelos
+ */
 function subMenuDuelos()
 {
-    while (true) {
-        echo "\n--- ADMINISTRAR DUELOS ---\n";
-        echo "1. Listar todos\n";
-        echo "2. Registrar Duelo\n";
-        echo "3. Ejecutar Duelo Pendiente\n";
-        echo "0. Volver\n";
+    $green = "\033[32m";
+    $red   = "\033[31m";
+    $reset = "\033[0m";
 
-        $op = leerEntrada("Opción: ");
-        if ($op == '0') break;
-
-        switch ($op) {
-            case '1':
+    do {
+        $opcion = seleccionarOpcionDuelos();
+        switch ($opcion) {
+            case 1:
+                echo "\n";
                 $duelos = Duelo::listar();
                 foreach ($duelos as $d) imprimirDuelo($d);
                 break;
-            case '2':
-                $idP1 = (int)leerEntrada("ID Personaje 1: ");
-                $idP2 = (int)leerEntrada("ID Personaje 2: ");
-                $idArena = (int)leerEntrada("ID Arena: ");
+            case 2:
+                $idP1 = solicitarEntero("ID Personaje 1: ");
+                $idP2 = solicitarEntero("ID Personaje 2: ");
+                $idArena = solicitarEntero("ID Arena: ");
                 $p1 = Personaje::busquedaPorId($idP1);
                 $p2 = Personaje::busquedaPorId($idP2);
                 $arena = Arena::busquedaPorId($idArena);
@@ -215,16 +420,16 @@ function subMenuDuelos()
                     $duelo = new Duelo($p1, $p2, $arena, $fecha, "pendiente");
                     if ($duelo->puedeRealizarse()) {
                         $duelo->guardar();
-                        echo "Duelo registrado con ID {$duelo->getId()} (Estado: pendiente)\n";
+                        echo "{$green}Duelo registrado con ID {$duelo->getId()} (Estado: pendiente){$reset}\n";
                     } else {
-                        echo "El duelo no puede realizarse (verificar que no sean el mismo personaje ni estén lesionados/retirados).\n";
+                        echo "{$red}El duelo no puede realizarse (verificar que no sean el mismo personaje ni estén lesionados/retirados).{$reset}\n";
                     }
                 } else {
-                    echo "Datos inválidos (personajes o arena no encontrados).\n";
+                    echo "{$red}Datos inválidos (personajes o arena no encontrados).{$reset}\n";
                 }
                 break;
-            case '3':
-                $idDuelo = (int)leerEntrada("ID del Duelo a ejecutar: ");
+            case 3:
+                $idDuelo = solicitarEntero("ID del Duelo a ejecutar: ");
                 $duelo = Duelo::busquedaPorId($idDuelo);
                 if ($duelo && $duelo->getEstado() == "pendiente") {
                     if ($duelo->realizarDuelo()) {
@@ -232,138 +437,169 @@ function subMenuDuelos()
                         $duelo->getPersonaje1()->guardar();
                         $duelo->getPersonaje2()->guardar();
                         $ganador = $duelo->getGanador() ? $duelo->getGanador()->getNombre() : "Empate";
-                        echo "Duelo ejecutado. Ganador: {$ganador}\n";
+                        echo "{$green}Duelo ejecutado. Ganador: {$ganador}{$reset}\n";
                     } else {
-                        echo "No se pudo realizar el duelo en este momento.\n";
+                        echo "{$red}No se pudo realizar el duelo en este momento.{$reset}\n";
                     }
                 } else {
-                    echo "Duelo no encontrado o no está en estado pendiente.\n";
+                    echo "{$red}Duelo no encontrado o no está en estado pendiente.{$reset}\n";
                 }
                 break;
         }
-    }
+    } while ($opcion != 0);
 }
 
+/**
+ * Muestra y gestiona el menú de Consultas Obligatorias
+ * @return int
+ */
+function seleccionarOpcionConsultas()
+{
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
+
+    echo "\n{$magenta}═══════════════════════════════════════════════{$reset}\n";
+    echo "{$yellow}        📊  {$green}Consultas Obligatorias{$reset}\n";
+    echo "{$magenta}═══════════════════════════════════════════════{$reset}\n\n";
+
+    echo "{$cyan}  1){$reset} Listar todos los personajes\n";
+    echo "{$cyan}  2){$reset} Listar personajes disponibles para duelar\n";
+    echo "{$cyan}  3){$reset} Listar personajes lesionados\n";
+    echo "{$cyan}  4){$reset} Listar personajes retirados\n";
+    echo "{$cyan}  5){$reset} Listar armas disponibles\n";
+    echo "{$cyan}  6){$reset} Mostrar el arma equipada por cada personaje\n";
+    echo "{$cyan}  7){$reset} Mostrar todos los duelos realizados\n";
+    echo "{$cyan}  8){$reset} Mostrar todos los duelos pendientes\n";
+    echo "{$cyan}  9){$reset} Mostrar el historial de duelos de un personaje\n";
+    echo "{$cyan} 10){$reset} Mostrar el ranking de personajes (por victorias)\n";
+    echo "{$cyan} 11){$reset} Mostrar el personaje con mayor cantidad de victorias\n";
+    echo "{$cyan} 12){$reset} Mostrar el porcentaje de victorias de cada personaje\n";
+    echo "{$cyan} 13){$reset} Mostrar la arena donde más duelos se realizaron\n";
+    echo "{$cyan}  0){$reset} Volver\n\n";
+
+    echo "{$yellow}► Ingrese una opción (0-13): {$reset}";
+    return solicitarNumeroEntre(0, 13);
+}
+
+/**
+ * Submenú para las Consultas Obligatorias
+ */
 function consultasObligatorias()
 {
-    while (true) {
-        echo "\n--- CONSULTAS OBLIGATORIAS ---\n";
-        echo "1. Listar todos los personajes.\n";
-        echo "2. Listar personajes disponibles para duelar.\n";
-        echo "3. Listar personajes lesionados.\n";
-        echo "4. Listar personajes retirados.\n";
-        echo "5. Listar armas disponibles.\n";
-        echo "6. Mostrar el arma equipada por cada personaje.\n";
-        echo "7. Mostrar todos los duelos realizados.\n";
-        echo "8. Mostrar todos los duelos pendientes.\n";
-        echo "9. Mostrar el historial de duelos de un personaje.\n";
-        echo "10. Mostrar el ranking de personajes ordenado por cantidad de victorias.\n";
-        echo "11. Mostrar el personaje con mayor cantidad de victorias.\n";
-        echo "12. Mostrar el porcentaje de victorias de cada personaje.\n";
-        echo "13. Mostrar la arena donde más duelos se realizaron.\n";
-        echo "0. Volver.\n";
+    $cyan    = "\033[36m";
+    $yellow  = "\033[33m";
+    $green   = "\033[32m";
+    $magenta = "\033[35m";
+    $reset   = "\033[0m";
 
-        $op = leerEntrada("Seleccione una consulta: ");
-        if ($op == '0') break;
+    do {
+        $opcion = seleccionarOpcionConsultas();
 
-        echo "\n-- RESULTADOS --\n";
-        switch ($op) {
-            case '1':
+        if ($opcion != 0) {
+            echo "\n{$magenta}-- RESULTADOS --{$reset}\n";
+        }
+
+        switch ($opcion) {
+            case 1:
                 foreach (Personaje::listar() as $p) imprimirPersonaje($p);
                 break;
-            case '2':
+            case 2:
                 foreach (Personaje::listarDisponibles() as $p) imprimirPersonaje($p);
                 break;
-            case '3':
+            case 3:
                 foreach (Personaje::listarLesionados() as $p) imprimirPersonaje($p);
                 break;
-            case '4':
+            case 4:
                 foreach (Personaje::listarRetirados() as $p) imprimirPersonaje($p);
                 break;
-            case '5':
+            case 5:
                 foreach (Arma::listarDisponibles() as $a) imprimirArma($a);
                 break;
-            case '6':
+            case 6:
                 foreach (Personaje::listar() as $p) {
                     $armaStr = $p->getArma() ? $p->getArma()->getNombre() : "Ninguna";
-                    echo "Personaje: {$p->getNombre()} | Arma equipada: {$armaStr}\n";
+                    echo "{$yellow}Personaje:{$reset} {$p->getNombre()} | {$cyan}Arma equipada:{$reset} {$armaStr}\n";
                 }
                 break;
-            case '7':
+            case 7:
                 foreach (Duelo::listarRealizados() as $d) imprimirDuelo($d);
                 break;
-            case '8':
+            case 8:
                 foreach (Duelo::listarPendientes() as $d) imprimirDuelo($d);
                 break;
-            case '9':
-                $id = (int)leerEntrada("Ingrese el ID del personaje: ");
+            case 9:
+                $id = solicitarEntero("Ingrese el ID del personaje: ");
                 $duelos = Duelo::historialPorPersonaje($id);
-                if (empty($duelos)) echo "Sin historial.\n";
+                if (empty($duelos)) echo "{$yellow}Sin historial.{$reset}\n";
                 foreach ($duelos as $d) imprimirDuelo($d);
                 break;
-            case '10':
+            case 10:
                 foreach (Personaje::obtenerRanking() as $p) {
-                    echo "Nombre: {$p->getNombre()} | Victorias: {$p->getDuelosGanados()}\n";
+                    echo "{$yellow}Nombre:{$reset} {$p->getNombre()} | {$green}Victorias:{$reset} {$p->getDuelosGanados()}\n";
                 }
                 break;
-            case '11':
+            case 11:
                 $p = Personaje::obtenerPersonajeMasVictorias();
-                if ($p) echo "Mayor ganador: {$p->getNombre()} con {$p->getDuelosGanados()} victorias.\n";
-                else echo "No hay personajes registrados.\n";
+                if ($p) echo "{$green}Mayor ganador:{$reset} {$p->getNombre()} con {$p->getDuelosGanados()} victorias.\n";
+                else echo "{$yellow}No hay personajes registrados.{$reset}\n";
                 break;
-            case '12':
+            case 12:
                 $porcentajes = Personaje::obtenerPorcentajeVictorias();
                 foreach ($porcentajes as $nombre => $pct) {
-                    echo "Personaje: {$nombre} | Winrate: {$pct}%\n";
+                    echo "{$yellow}Personaje:{$reset} {$nombre} | {$cyan}Winrate:{$reset} {$pct}%\n";
                 }
                 break;
-            case '13':
+            case 13:
                 $a = Arena::obtenerArenaMasDuelos();
-                if ($a) echo "La arena con más duelos es '{$a->getnombre()}' (ID: {$a->getid()}).\n";
-                else echo "No hay duelos registrados.\n";
+                if ($a) echo "{$green}La arena con más duelos es '{$a->getNombre()}' (ID: {$a->getId()}).{$reset}\n";
+                else echo "{$yellow}No hay duelos registrados.{$reset}\n";
                 break;
-            default:
-                echo "Opción inválida.\n";
         }
-    }
+    } while ($opcion != 0);
 }
 
-// Bucle principal
-while (true) {
-    echo "\n============================================\n";
-    echo "   LOS JUEGOS DEL HAMBRE - MENÚ PRINCIPAL   \n";
-    echo "============================================\n";
-    echo "1. Administrar Personajes\n";
-    echo "2. Administrar Armas\n";
-    echo "3. Administrar Arenas\n";
-    echo "4. Administrar Duelos\n";
-    echo "5. Consultas Obligatorias\n";
-    echo "0. Salir\n";
 
-    $opcion = leerEntrada("Seleccione una opción: ");
+/**************************************/
+/*********** PROGRAMA PRINCIPAL *******/
+/**************************************/
 
-    if ($opcion == '0') {
-        echo "Saliendo...\n";
-        break;
-    }
+//Declaración e inicialización de variables:
+$magenta = "\033[35m";
+$yellow  = "\033[33m";
+$reset   = "\033[0m";
+$opcion  = 0;
+
+//Proceso:
+
+//Menu de opciones
+do {
+    //Mensaje del menu de opciones principal
+    $opcion = seleccionarOpcionPrincipal();
 
     switch ($opcion) {
-        case '1':
+        case 1:
             subMenuPersonajes();
             break;
-        case '2':
+        case 2:
             subMenuArmas();
             break;
-        case '3':
+        case 3:
             subMenuArenas();
             break;
-        case '4':
+        case 4:
             subMenuDuelos();
             break;
-        case '5':
+        case 5:
             consultasObligatorias();
             break;
-        default:
-            echo "Opción inválida.\n";
+        case 0:
+            echo "\n{$yellow}Saliendo del sistema de torneos... ¡Hasta luego!{$reset}\n";
+            break;
     }
-}
+} while ($opcion != 0);
+
+//Mensaje de fin de programa
+echo "{$magenta}Fin del programa.{$reset}\n";

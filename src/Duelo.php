@@ -109,11 +109,11 @@ class Duelo
     {
         $this->fecha = $nuevaFecha;
     }
-    public function setEstado(string $nuevoEstado)
+    private function setEstado(string $nuevoEstado)
     {
         $this->estado = $nuevoEstado;
     }
-    public function setGanador(?Personaje $nuevoGanador)
+    private function setGanador(?Personaje $nuevoGanador)
     {
         $this->ganador = $nuevoGanador;
     }
@@ -343,6 +343,12 @@ class Duelo
                 $listaId["idGanador"] ? Personaje::busquedaPorId((int)$listaId["idGanador"]) : null,
                 (int)$listaId["id"],
             );
+
+            if ($listaId["danioAplicado"] !== null) {
+                $dueloRetorno->setPoderPersonaje1((int)$listaId["poderPersonaje1"]);
+                $dueloRetorno->setPoderPersonaje2((int)$listaId["poderPersonaje2"]);
+                $dueloRetorno->setDanioAplicado((int)$listaId["danioAplicado"]);
+            }
         }
         return $dueloRetorno;
     }
@@ -406,16 +412,24 @@ class Duelo
     {
         $duelosObjetos = [];
         if ($filasBD) {
-            foreach ($filasBD as $duelo) {
-                $duelosObjetos[] = new Duelo(
-                    Personaje::busquedaPorId((int)$duelo["idPersonaje1"]),
-                    Personaje::busquedaPorId((int)$duelo["idPersonaje2"]),
-                    Arena::busquedaPorId((int)$duelo["idArena"]),
-                    $duelo["fecha"],
-                    $duelo["estado"],
-                    $duelo["idGanador"] ? Personaje::busquedaPorId((int)$duelo["idGanador"]) : null,
-                    (int)$duelo["id"],
+            foreach ($filasBD as $dueloBD) {
+                $nuevoDuelo = new Duelo(
+                    Personaje::busquedaPorId((int)$dueloBD["idPersonaje1"]),
+                    Personaje::busquedaPorId((int)$dueloBD["idPersonaje2"]),
+                    Arena::busquedaPorId((int)$dueloBD["idArena"]),
+                    $dueloBD["fecha"],
+                    $dueloBD["estado"],
+                    $dueloBD["idGanador"] ? Personaje::busquedaPorId((int)$dueloBD["idGanador"]) : null,
+                    (int)$dueloBD["id"],
                 );
+
+                if ($dueloBD["danioAplicado"] !== null) {
+                    $nuevoDuelo->setPoderPersonaje1((int)$dueloBD["poderPersonaje1"]);
+                    $nuevoDuelo->setPoderPersonaje2((int)$dueloBD["poderPersonaje2"]);
+                    $nuevoDuelo->setDanioAplicado((int)$dueloBD["danioAplicado"]);
+                }
+
+                $duelosObjetos[] = $nuevoDuelo;
             }
         }
         return $duelosObjetos;

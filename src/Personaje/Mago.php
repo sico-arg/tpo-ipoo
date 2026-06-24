@@ -81,7 +81,7 @@ class Mago extends Personaje
     {
         $inteligenciaActual = $this->getInteligencia();
         $manaActual = $this->getMana();
-        $poderEspecial = $inteligenciaActual + $manaActual * 3;
+        $poderEspecial = $manaActual + ($inteligenciaActual * 3);
         return $poderEspecial;
     }
 }

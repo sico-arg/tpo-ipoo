@@ -69,26 +69,27 @@ class Arma
     //                 SETTERS                  
     // ==========================================
 
-    public function setId(?int $nuevoId)
+    private function setId(?int $nuevoId)
     {
         $this->id = $nuevoId;
     }
-    public function setNombre(string $nuevoNombre)
+    private function setNombre(string $nuevoNombre)
     {
         $this->nombre = $nuevoNombre;
     }
-    public function setTipo(string $nuevoTipo)
+    private function setTipo(string $nuevoTipo)
     {
         $this->tipo = $nuevoTipo;
     }
-    public function setDanioBase(int $nuevoDanioBase)
+    private function setDanioBase(int $nuevoDanioBase)
     {
         $this->danioBase = $nuevoDanioBase;
     }
-    public function setNivelMinimo(int $nuevoNivelMinimo)
+    private function setNivelMinimo(int $nuevoNivelMinimo)
     {
         $this->nivelMinimo = $nuevoNivelMinimo;
     }
+    // Público porque lo necesita Torneo::equiparArma()
     public function setEstado(string $nuevoEstado)
     {
         $this->estado = $nuevoEstado;
@@ -99,6 +100,18 @@ class Arma
     // ==========================================
 
     /**
+     * Modifica los datos del arma.
+     * @param string $nuevoNombre
+     * @param int $nuevoDanioBase
+     * @return void
+     */
+    public function modificar(string $nuevoNombre, int $nuevoDanioBase)
+    {
+        $this->setNombre($nuevoNombre);
+        $this->setDanioBase($nuevoDanioBase);
+    }
+
+    /**
      * Este metodo devuelve el daño esperado del arma
      * 
      */
@@ -107,7 +120,8 @@ class Arma
         $dañoCalculado = 0;
         $estadoActual = $this->getEstado();
 
-        if ($estadoActual == 'disponible' && $estadoActual == 'equipada') {
+        // ARREGLO: Se cambia '&&' por '||' porque una variable no puede tener 2 estados a la vez.
+        if ($estadoActual == 'disponible' || $estadoActual == 'equipada') {
             $dañoCalculado = $this->getDanioBase();
         }
 
